@@ -23,7 +23,7 @@ namespace BinaryRage.UnitTests
 
 		private void AssertPath(string actualPath, params string[] parts)
 		{
-			Assert.AreEqual(Path.Combine(parts), actualPath);
+			Assert.That( Path.Combine( parts ).Equals( actualPath ) );
 		}
 	}
 }

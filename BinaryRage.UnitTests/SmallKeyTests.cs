@@ -24,10 +24,19 @@ namespace BinaryRage.UnitTests
 		/// is not re-introduced.
 		/// </summary>
 		[Test]
-		[ExpectedException("System.IO.DirectoryNotFoundException")]
 		public void MustAcceptSmallKey()
 		{
-			BinaryRage.DB.Get<Model>("123", filelocation: "SmallKeyTests");
+			bool passed = false;
+			try
+			{
+				BinaryRage.DB.Get<Model>( "123", filelocation: "SmallKeyTests" );
+			}
+			catch (System.IO.DirectoryNotFoundException)
+			{
+				passed = true;
+			}
+
+			Assert.That( passed );
 		}
 	}
 }

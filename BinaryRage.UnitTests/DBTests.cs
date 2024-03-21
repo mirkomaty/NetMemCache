@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BinaryRage;
+using NUnit.Framework.Legacy;
 
 namespace BinaryRage.UnitTests
 {
@@ -21,7 +22,7 @@ namespace BinaryRage.UnitTests
 
                 var result = BinaryRage.DB.Get<Model>("myModel", "dbfile");
                
-                Assert.AreEqual(model, result);
+                Assert.That(model.Equals(result));
                 BinaryRage.DB.WaitForCompletion();
                 BinaryRage.DB.Remove("myModel", "dbfile");
             }

@@ -1,8 +1,6 @@
-using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
+using NUnit.Framework;
+
 
 namespace BinaryRage.UnitTests
 {
@@ -33,8 +31,8 @@ namespace BinaryRage.UnitTests
 			for (int i = 0; i < 10; i++)
 				readObjects.Add("key" + i, BinaryRage.DB.Get<Model>("key" + i, DB_NAME));
 
-			Assert.AreEqual(m.Description, readObjects["key0"].Description);
-			Assert.AreEqual(m.Description, readObjects["key9"].Description);
+			Assert.That( m.Description.Equals( readObjects["key0"].Description ) );
+			Assert.That( m.Description.Equals( readObjects["key9"].Description ) );
 		}
 	}
 }
