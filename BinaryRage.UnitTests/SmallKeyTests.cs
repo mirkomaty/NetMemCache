@@ -24,12 +24,12 @@ namespace BinaryRage.UnitTests
 		/// is not re-introduced.
 		/// </summary>
 		[Test]
-		public void MustAcceptSmallKey()
+		public async Task MustAcceptSmallKey()
 		{
 			bool passed = false;
 			try
 			{
-				BinaryRage.DB.Get<Model>( "123", filelocation: "SmallKeyTests" );
+				await BinaryRage.DB.Get<Model>( "123", filelocation: "SmallKeyTests" );
 			}
 			catch (System.IO.DirectoryNotFoundException)
 			{
