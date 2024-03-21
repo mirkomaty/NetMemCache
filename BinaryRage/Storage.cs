@@ -1,12 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.IO;
-using System.Threading;
-using System.Collections.Generic;
-
-namespace BinaryRage
+﻿namespace BinaryRage
 {
-	public static class Storage
+	internal static class Storage
 	{
 		private const string DB_EXTENSION = ".odb";
 		static object lockObject = new object();
@@ -65,16 +59,11 @@ namespace BinaryRage
 			return key.GetHashCode().ToString( "X8" ).Substring( 0, 4 );
 		}
 
-		public static string GetExactFileLocation( string key, string filelocation )
+		private static string GetExactFileLocation( string key, string filelocation )
 		{
 			return CombinePathAndKey(
 				path: Path.Combine( GetFolders( ComputeHash( key ), filelocation ).ToArray() ),
 				key: key );
-		}
-
-		public static byte[] GetFromStorageWithKnownFileLocation(string filelocation)
-		{
-			return File.ReadAllBytes(filelocation);
 		}
 
 		private static string CombinePathAndKey(string path, string key)
