@@ -21,7 +21,20 @@ namespace BinaryRage.UnitTests
                 BinaryRage.DB.Remove("myModel", "dbfile");
             }
 
-            [Test]
+			[Test]
+			public async Task ShouldInsertAndGetKeysWithInvalidChars()
+			{
+				var model = new Model{Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F};
+				await DB.Insert<Model>( "my:Model", model, "dbfile" );
+
+				var result = await DB.Get<Model>("my:Model", "dbfile");
+
+				Assert.That( model.Equals( result ) );
+				DB.Remove( "my:Model", "dbfile" );
+                Assert.That( !DB.Exists( "my:Model", "dbfile" ) );
+			}
+
+			[Test]
             public async Task ShouldInsertAListOfObjectsToStore()
             {
                 var models = new List<Model> { 
