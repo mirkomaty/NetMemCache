@@ -79,7 +79,7 @@ namespace BinaryRage
 
 		internal static IEnumerable<string> Splitkey(string key)
 		{
-			return key.SplitByLength(key.Length / 4);
+			return key.SplitByLength(2);
 		}
 
 		public static string GenerateUniqueKey()

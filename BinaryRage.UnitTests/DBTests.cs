@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BinaryRage;
 using NUnit.Framework.Legacy;
+using System.Diagnostics;
 
 namespace BinaryRage.UnitTests
 {
@@ -43,6 +44,38 @@ namespace BinaryRage.UnitTests
                 BinaryRage.DB.WaitForCompletion();
                 BinaryRage.DB.Remove("myModels", "dbfile");
             }
-        }
+
+			[Test]
+			public void ShouldBeAbleToHandleHeavyLoad()
+			{
+                var dt = DateTime.Now;
+                var count = 200;
+                for (int i = 0; i < count; i++)
+                {
+                    var model = new Model{Title ="title" + i, ThumbUrl=$"http://thumb.com/title{i}.jpg", Description=$"description{i}", Price=(float)i};
+                    BinaryRage.DB.Insert<Model>( "myModel" + i, model, "dbfile" );
+                }
+
+                for (int i = 0; i < count; i++)
+                {
+					var model = new Model { Title = "title" + i, ThumbUrl = $"http://thumb.com/title{i}.jpg", Description = $"description{i}", Price = (float) i };
+					var result = BinaryRage.DB.Get<Model>("myModel" + i, "dbfile");
+
+                    Assert.That( model.Equals( result ) );
+                }
+
+				var ts = DateTime.Now - dt;
+				Debug.WriteLine( "Time Write and Read: " + ts );
+
+				BinaryRage.DB.WaitForCompletion();
+                for (int i = 0; i < count; i++)
+                {
+					BinaryRage.DB.Remove( "myModel" + i, "dbfile" );
+				}
+
+				ts = DateTime.Now - dt;
+				Debug.WriteLine( "Time with Delete: " + ts );
+			}
+		}
     }
 }

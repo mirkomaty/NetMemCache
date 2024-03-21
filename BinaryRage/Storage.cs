@@ -8,12 +8,12 @@ namespace BinaryRage
 {
 	public static class Storage
 	{
-		private const string DB_EXTENTION = ".odb";
+		private const string DB_EXTENSION = ".odb";
 
 		private static string createDirectoriesBasedOnKeyAndFilelocation(string key, string filelocation)
 		{
 			string pathSoFar = "";
-			foreach (var folder in GetFolders(key, filelocation))
+			foreach (var folder in GetFolders( ComputeHash( key ), filelocation ))
 			{
 				try
 				{
@@ -66,11 +66,16 @@ namespace BinaryRage
 			return File.Exists(GetExactFileLocation(key, filelocation));
 		}
 
-		public static string GetExactFileLocation(string key, string filelocation)
+		static string ComputeHash(string key)
+		{
+			return key.GetHashCode().ToString( "X8" ).Substring( 0, 4 );
+		}
+
+		public static string GetExactFileLocation( string key, string filelocation )
 		{
 			return CombinePathAndKey(
-				path: Path.Combine(GetFolders(key, filelocation).ToArray()),
-				key: key);
+				path: Path.Combine( GetFolders( ComputeHash( key ), filelocation ).ToArray() ),
+				key: key );
 		}
 
 		public static byte[] GetFromStorageWithKnownFileLocation(string filelocation)
@@ -80,7 +85,7 @@ namespace BinaryRage
 
 		private static string CombinePathAndKey(string path, string key)
 		{
-			return Path.Combine(path, key + DB_EXTENTION);
+			return Path.Combine(path, key + DB_EXTENSION);
 		}
 
 		private static IEnumerable<string> GetFolders(string key, string filelocation)
