@@ -9,56 +9,50 @@ namespace BinaryRage
 	public static class Storage
 	{
 		private const string DB_EXTENSION = ".odb";
+		static object lockObject = new object();
 
 		private static string createDirectoriesBasedOnKeyAndFilelocation(string key, string filelocation)
 		{
-			string pathSoFar = "";
-			foreach (var folder in GetFolders( ComputeHash( key ), filelocation ))
+			lock (lockObject)
 			{
-				try
+				string pathSoFar = "";
+				foreach (var folder in GetFolders( ComputeHash( key ), filelocation ))
 				{
-					pathSoFar = Path.Combine(pathSoFar, folder);
-					if (!Directory.Exists(pathSoFar))
-						Directory.CreateDirectory(pathSoFar);
-				}
-				catch (Exception)
-				{
+					try
+					{
+						pathSoFar = Path.Combine( pathSoFar, folder );
+						if (!Directory.Exists( pathSoFar ))
+							Directory.CreateDirectory( pathSoFar );
+					}
+					catch (Exception)
+					{
 
+					}
 				}
+				return pathSoFar;
 			}
-			return pathSoFar;
 		}
 
-		public static void WritetoStorage(string key, byte[] value, string filelocation)
+		public static void Remove(string key, string fileLocation)
+		{
+			lock(lockObject)
+			{
+				File.Delete( GetExactFileLocation( key, fileLocation ) );
+			}
+		}
+
+		public async static Task WriteToStorage(string key, byte[] value, string filelocation)
 		{
 			//create folders
 			string dirstructure = createDirectoriesBasedOnKeyAndFilelocation(key, filelocation);
 
 			//Write the file to it's location
-			try
-			{
-                File.WriteAllBytes(CombinePathAndKey(dirstructure, key), value);
-
-                lock (Cache.LockObject)
-                {
-                    //remove object from cache
-                    Cache.CacheDic.Remove(filelocation + key);
-                }
-            }
-			catch (Exception)
-			{
-				
-			}
-
-			Interlocked.Decrement(ref Cache.counter);
-
-            //Calculate pause based on amount of bytes
-            Thread.Sleep(value.Length / 100);
+            await File.WriteAllBytesAsync(CombinePathAndKey(dirstructure, key), value);
 		}
 
-		public static byte[] GetFromStorage(string key, string filelocation)
+		public async static Task<byte[]> GetFromStorage(string key, string filelocation)
 		{
-			return File.ReadAllBytes(GetExactFileLocation(key, filelocation));
+			return await File.ReadAllBytesAsync(GetExactFileLocation(key, filelocation));
 		}
 
 		public static bool ExistingStorageCheck(string key, string filelocation)
@@ -90,10 +84,17 @@ namespace BinaryRage
 
 		private static IEnumerable<string> GetFolders(string key, string filelocation)
 		{
-			yield return filelocation;
-			foreach (var folder in Key.Splitkey(key))
-				yield return folder;
+			lock(lockObject)
+			{
+				return InternalGetFolders( key, filelocation );
+			}
 		}
 
+		private static IEnumerable<string> InternalGetFolders( string key, string filelocation )
+		{
+			yield return filelocation;
+			foreach (var folder in Key.Splitkey( key ))
+				yield return folder;
+		}
 	}
 }

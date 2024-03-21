@@ -17,19 +17,15 @@ namespace BinaryRage.UnitTests
 		}
 
 		[Test]
-		public void ShouldWaitForIOCompletionWhenAsked()
+		public async Task ShouldWaitForIOCompletionWhenAsked()
 		{
 			var m = new Model { Description = "foobar" };
 			for (int i = 0; i < 10; i++)
-				BinaryRage.DB.Insert<Model>("key" + i, m, DB_NAME);
-
-			// Without calling the wait method this test will fail every time
-			// with a DirectoryNotFoundException
-			BinaryRage.DB.WaitForCompletion();
+				await BinaryRage.DB.Insert<Model>("key" + i, m, DB_NAME);
 
 			var readObjects = new Dictionary<string, Model>();
 			for (int i = 0; i < 10; i++)
-				readObjects.Add("key" + i, BinaryRage.DB.Get<Model>("key" + i, DB_NAME));
+				readObjects.Add("key" + i, await BinaryRage.DB.Get<Model>("key" + i, DB_NAME));
 
 			Assert.That( m.Description.Equals( readObjects["key0"].Description ) );
 			Assert.That( m.Description.Equals( readObjects["key9"].Description ) );

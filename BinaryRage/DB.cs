@@ -1,73 +1,65 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading;
+using System.Text;
 using BinaryRage.Functions;
 
 namespace BinaryRage
 {
     static public class DB
     {
-        static BlockingCollection<SimpleObject> sendQueue = new BlockingCollection<SimpleObject>();
-        static readonly object LockObject = new object();
+		static char[] invalid = Path.GetInvalidFileNameChars();
 
-        static public void Insert<T>(string key, T value, string filelocation)
+		private static string NormalizeKey(string key)
         {
-            Interlocked.Increment(ref Cache.counter);
+			StringBuilder sb = new StringBuilder();
+			foreach (var c in key)
+			{
+				if (invalid.Contains( c ))
+				{
+					var bytes = Encoding.UTF8.GetBytes( new[] { c } );
+					foreach (byte b in bytes)
+					{
+						sb.Append( b.ToString( "X2" ) );
+					}
+				}
+				else
+				{
+					sb.Append( c );
+				}
+			}
+
+            return sb.ToString();
+		}
+
+        static async public Task Insert<T>(string rawKey, T value, string filelocation)
+        {
+            var key = NormalizeKey(rawKey);
             SimpleObject simpleObject = new SimpleObject { Key = key, Value = value, FileLocation = filelocation };
 
-            sendQueue.Add(simpleObject);
-            var data = sendQueue.Take(); //this blocks if there are no items in the queue.
+            Cache.CacheDic[filelocation + key] = simpleObject;
 
-            //Add to cache
-            lock (Cache.LockObject)
-            {
-                Cache.CacheDic[filelocation + key] = simpleObject;
-            }
-
-            ThreadPool.QueueUserWorkItem(state =>
-            {
-                lock (Cache.LockObject)
-                {
-                    Storage.WritetoStorage(data.Key, Compress.CompressGZip(ConvertHelper.ObjectToByteArray(value)),
-                        data.FileLocation);
-                }
-            });
+            await Storage.WriteToStorage(simpleObject.Key, await Compress.CompressGZip(ConvertHelper.ObjectToByteArray(value)),
+                simpleObject.FileLocation);
         }
 
-        static public void Remove(string key, string filelocation)
+        static public void Remove(string rawKey, string fileLocation)
         {
-            lock (Cache.LockObject)
-            {
-                Cache.CacheDic.Remove(filelocation + key);
-            }
-
-            lock (DB.LockObject)
-            {
-                File.Delete(Storage.GetExactFileLocation(key, filelocation));
-            }
+			var key = NormalizeKey(rawKey);
+			Cache.CacheDic.Remove(fileLocation + key, out _);
+            Storage.Remove( key, fileLocation );
         }
 
-        static public T Get<T>(string key, string filelocation)
+        static async public Task<T> Get<T>(string rawKey, string filelocation)
         {
-            //Try getting the object from cache first
-            lock (Cache.LockObject)
-            {
-                SimpleObject simpleObjectFromCache;
-                if (Cache.CacheDic.TryGetValue(filelocation + key, out simpleObjectFromCache))
-                    return (T)simpleObjectFromCache.Value;
-            }
+			var key = NormalizeKey(rawKey);
 
-            //Get from disk
-            lock (DB.LockObject)
-            {
-                byte[] compressGZipData = Compress.DecompressGZip(Storage.GetFromStorage(key, filelocation));
-                T umcompressedObject = (T) ConvertHelper.ByteArrayToObject(compressGZipData);
-                return umcompressedObject;
-            }
+			SimpleObject simpleObjectFromCache;
+            if (Cache.CacheDic.TryGetValue(filelocation + key, out simpleObjectFromCache))
+                return (T)simpleObjectFromCache.Value;
+
+            byte[] compressGZipData = await Compress.DecompressGZip(await Storage.GetFromStorage(key, filelocation));
+            T umcompressedObject = (T) ConvertHelper.ByteArrayToObject(compressGZipData);
+            Cache.CacheDic.TryAdd( key, new SimpleObject { Key = key, Value = umcompressedObject, FileLocation = filelocation } );
+            return umcompressedObject;
         }
 
         static public string GetJSON<T>(string key, string filelocation)
@@ -75,18 +67,10 @@ namespace BinaryRage
             return SimpleSerializer.Serialize(Get<T>(key, filelocation));
         }
 
-        static public bool Exists(string key, string filelocation)
+        static public bool Exists(string rawKey, string filelocation)
         {
-            return Storage.ExistingStorageCheck(key, filelocation);
+			var key = NormalizeKey(rawKey);
+			return Storage.ExistingStorageCheck(key, filelocation);
         }
-
-        static public void WaitForCompletion()
-        {
-            while (Cache.counter > 0)
-            {
-                Thread.Sleep(10);
-            }
-        }
-
     }
 }
