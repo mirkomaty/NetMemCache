@@ -72,7 +72,7 @@ namespace BinaryRage
 
         static public string GetJSON<T>(string key, string filelocation)
         {
-            return SimpleSerializer.Serrialize(Get<T>(key, filelocation));
+            return SimpleSerializer.Serialize(Get<T>(key, filelocation));
         }
 
         static public bool Exists(string key, string filelocation)

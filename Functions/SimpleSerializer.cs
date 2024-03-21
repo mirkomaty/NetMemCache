@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace BinaryRage.Functions
 {
 	internal class SimpleSerializer
 	{
-		public static string Serrialize<T>(T myobj)
+		public static string Serialize<T>(T myobj)
 		{
-			JavaScriptSerializer js = new JavaScriptSerializer();
-			string returnstring = js.Serialize(myobj);
-
-			return returnstring;
-		}
-		
+			return JsonConvert.SerializeObject(myobj);
+		}		
 	}
 }
