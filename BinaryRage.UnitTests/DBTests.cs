@@ -17,7 +17,6 @@ namespace BinaryRage.UnitTests
                     Directory.Delete( binaryCache.StoreName, recursive: true );
             }
 
-
             [Test]
             public async Task ShouldInsertAnObjectToStore()
             {
@@ -30,7 +29,19 @@ namespace BinaryRage.UnitTests
                 this.binaryCache.Remove( "myModel" );
             }
 
-            [Test]
+			[Test]
+			public async Task ShouldBeAbleToInsertAndRetrieveNull()
+			{
+				Model model = null;
+				await this.binaryCache.Set<Model>( "nullModel", model );
+
+				var result = await this.binaryCache.Get<Model>( "nullModel" );
+
+				Assert.That( result == null );
+				this.binaryCache.Remove( "nullModel" );
+			}
+
+			[Test]
             public async Task ShouldInsertAndGetKeysWithInvalidChars()
             {
                 var model = new Model{Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F};
