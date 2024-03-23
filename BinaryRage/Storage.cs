@@ -1,16 +1,52 @@
 ﻿namespace BinaryRage
 {
-	internal static class Storage
+	public class Storage : IStorage
 	{
 		private const string DB_EXTENSION = ".odb";
-		static object lockObject = new object();
+		private readonly IFolderStructure folderStructure;
+		object lockObject = new object();
 
-		private static string createDirectoriesBasedOnKeyAndFilelocation(string key, string filelocation)
+		public Storage( IFolderStructure? folderStructure = null )
+		{
+			this.folderStructure = folderStructure == null ? new FolderStructure() : folderStructure;
+		}
+
+		public void Remove(string key, string fileLocation)
+		{
+			lock(lockObject)
+			{
+				File.Delete( GetExactFileLocation( key, fileLocation ) );
+			}
+		}
+
+		/// <inheritdoc/>
+		public async Task Write(string key, byte[] value, string store)
+		{
+			//create folders
+			string dirstructure = CreateDirectoriesBasedOnKeyAndFilelocation(key, store);
+
+			//Write the file to it's location
+            await File.WriteAllBytesAsync(CombinePathAndKey(dirstructure, key), value);
+		}
+
+		/// <inheritdoc/>
+		public async Task<byte[]> Read(string key, string store)
+		{
+			return await File.ReadAllBytesAsync(GetExactFileLocation(key, store));
+		}
+
+		/// <inheritdoc/>
+		public bool Exists(string key, string store)
+		{
+			return File.Exists(GetExactFileLocation(key, store));
+		}
+
+		private string CreateDirectoriesBasedOnKeyAndFilelocation( string key, string store )
 		{
 			lock (lockObject)
 			{
 				string pathSoFar = "";
-				foreach (var folder in GetFolders( ComputeHash( key ), filelocation ))
+				foreach (var folder in GetFolders( key, store ))
 				{
 					try
 					{
@@ -27,63 +63,26 @@
 			}
 		}
 
-		public static void Remove(string key, string fileLocation)
-		{
-			lock(lockObject)
-			{
-				File.Delete( GetExactFileLocation( key, fileLocation ) );
-			}
-		}
-
-		public async static Task WriteToStorage(string key, byte[] value, string filelocation)
-		{
-			//create folders
-			string dirstructure = createDirectoriesBasedOnKeyAndFilelocation(key, filelocation);
-
-			//Write the file to it's location
-            await File.WriteAllBytesAsync(CombinePathAndKey(dirstructure, key), value);
-		}
-
-		public async static Task<byte[]> GetFromStorage(string key, string filelocation)
-		{
-			return await File.ReadAllBytesAsync(GetExactFileLocation(key, filelocation));
-		}
-
-		public static bool ExistingStorageCheck(string key, string filelocation)
-		{
-			return File.Exists(GetExactFileLocation(key, filelocation));
-		}
-
-		static string ComputeHash(string key)
-		{
-			return key.GetHashCode().ToString( "X8" ).Substring( 0, 4 );
-		}
-
-		private static string GetExactFileLocation( string key, string filelocation )
+		private string GetExactFileLocation( string key, string store )
 		{
 			return CombinePathAndKey(
-				path: Path.Combine( GetFolders( ComputeHash( key ), filelocation ).ToArray() ),
+				path: Path.Combine( GetFolders( key, store ).ToArray() ),
 				key: key );
 		}
 
-		private static string CombinePathAndKey(string path, string key)
+		private IEnumerable<string> GetFolders( string key, string store )
+		{
+			lock (lockObject)
+			{
+				return this.folderStructure.Generate( key, store );
+			}
+		}
+
+
+		private string CombinePathAndKey(string path, string key)
 		{
 			return Path.Combine(path, key + DB_EXTENSION);
 		}
 
-		private static IEnumerable<string> GetFolders(string key, string filelocation)
-		{
-			lock(lockObject)
-			{
-				return InternalGetFolders( key, filelocation );
-			}
-		}
-
-		private static IEnumerable<string> InternalGetFolders( string key, string filelocation )
-		{
-			yield return filelocation;
-			foreach (var folder in Key.Splitkey( key ))
-				yield return folder;
-		}
 	}
 }

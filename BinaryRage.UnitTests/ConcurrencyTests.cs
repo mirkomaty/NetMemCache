@@ -7,13 +7,12 @@ namespace BinaryRage.UnitTests
 	[TestFixture]
 	public class ConcurrencyTests
 	{
-		const string DB_NAME = "ConcurrencyTests";
+		BinaryCache binaryCache = new BinaryCache( "ConcurrencyTests" );
 
-		[SetUp]
-		public void Setup()
+		public ConcurrencyTests()
 		{
-			if (Directory.Exists(DB_NAME))
-				Directory.Delete(DB_NAME, recursive: true);
+			if (Directory.Exists( binaryCache.StoreName ) )
+				Directory.Delete( binaryCache.StoreName, recursive: true);
 		}
 
 		[Test]
@@ -48,18 +47,17 @@ namespace BinaryRage.UnitTests
 			for (int i = 0; i < count; i++)
 			{
 				Assert.That( m.Description.Equals( readTasks[i].GetAwaiter().GetResult().Description ) );
-				DB.Remove( keys[i], DB_NAME );
+				this.binaryCache.Remove( keys[i] );
 			}
 		}
 
-		static Task RunWriteTask( string key, Model m )
+		Task RunWriteTask( string key, Model m )
 		{
-			return DB.Insert<Model>( key, m, DB_NAME );
+			return this.binaryCache.Set<Model>( key, m );
 		}
-		static Task<Model> RunReadTask( string key )
+		Task<Model> RunReadTask( string key )
 		{
-			return DB.Get<Model>( key, DB_NAME );
+			return this.binaryCache.Get<Model>( key );
 		}
-
 	}
 }

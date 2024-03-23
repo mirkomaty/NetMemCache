@@ -4,6 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace BinaryRage.Functions
 {
+#pragma warning disable SYSLIB0011
 	public class ConvertHelper
 	{
 		//Convert objct to ByteArray
@@ -12,19 +13,20 @@ namespace BinaryRage.Functions
 			if (obj == null)
 				return new byte[0];
 		
-			BinaryFormatter bf = new BinaryFormatter();
+			BinaryFormatter formatter = new BinaryFormatter();
 			MemoryStream ms = new MemoryStream();
 
 			using (ms)
 			{
-				bf.Serialize(ms, obj);	
+
+				formatter.Serialize(ms, obj);	
 			}
 
 			return ms.ToArray();
 		}
 
 		//Convert BytesArray to object
-		public static Object ByteArrayToObject(byte[] arrBytes)
+		public static Object? ByteArrayToObject(byte[] arrBytes)
 		{
             if (arrBytes == null || arrBytes.Length == 0)
                 return null;
@@ -33,8 +35,7 @@ namespace BinaryRage.Functions
 			BinaryFormatter binForm = new BinaryFormatter();
 			memStream.Write(arrBytes, 0, arrBytes.Length);
 			memStream.Seek(0, SeekOrigin.Begin);
-			Object obj = (Object)binForm.Deserialize(memStream);
-			return obj;
+			return (Object?)binForm.Deserialize(memStream);
 		}
 	}
 }
