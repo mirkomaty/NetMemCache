@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text;
-using BinaryRage.Functions;
+using BinaryRage.Interfaces;
 
 namespace BinaryRage
 {
@@ -11,14 +11,18 @@ namespace BinaryRage
     {
 		private readonly IStorage storage;
 
-        public BinaryCache(string storeName, IStorage? storage = null)
+        public BinaryCache(string storeName, IStorage? storage = null, IFolderStructure? folderStructure = null, IObjectSerializer? objectSerializer = null)
 		{
 			this.storeName = storeName;
-			this.storage = storage == null ? new Storage() : storage;
+			this.objectSerializer = objectSerializer != null ? objectSerializer : new ObjectSerializer();
+			this.folderStructure = folderStructure != null ? folderStructure : new FolderStructure();
+			this.storage = storage != null ? storage : new Storage(this.folderStructure);
 		}
 
 		static readonly char[] invalid = Path.GetInvalidFileNameChars();
 		private readonly string storeName;
+		private readonly IObjectSerializer objectSerializer;
+		private readonly IFolderStructure folderStructure;
 
 		public string StoreName => this.storeName;
 
@@ -52,7 +56,7 @@ namespace BinaryRage
 			if (rawKey is string)
 				return NormalizeKey( (string) rawKey );
 
-            return NormalizeKey( Convert.ToBase64String( ConvertHelper.ObjectToByteArray( rawKey ) ) );
+            return NormalizeKey( this.objectSerializer.SerializeKey( rawKey ) );
 		}
 
 		private string CacheKey( string key ) => this.storeName + key;
@@ -64,7 +68,7 @@ namespace BinaryRage
 
             Cache.CacheDic[CacheKey(key)] = simpleObject;
 
-            await this.storage.Write(simpleObject.Key, await Compress.CompressGZip(ConvertHelper.ObjectToByteArray(value!)),
+            await this.storage.Write(simpleObject.Key, await this.objectSerializer.Serialize(value),
                 simpleObject.Store);
         }
 
@@ -82,11 +86,10 @@ namespace BinaryRage
 			SimpleObject? simpleObjectFromCache;
 			if (Cache.CacheDic.TryGetValue( CacheKey( key ), out simpleObjectFromCache ))
                 return (T?)simpleObjectFromCache.Value;
-
-            byte[] compressGZipData = await Compress.DecompressGZip(await this.storage.Read(key, this.storeName));
-            var umcompressedObject = (T?) ConvertHelper.ByteArrayToObject(compressGZipData);
-            Cache.CacheDic.TryAdd( CacheKey( key ), new SimpleObject (key, umcompressedObject, this.storeName ) );
-            return umcompressedObject;
+			var rawData = await this.storage.Read(key, this.storeName);
+			T? uncompressedObject = (T?) await this.objectSerializer.Deserialize( rawData );
+			Cache.CacheDic.TryAdd( CacheKey( key ), new SimpleObject (key, uncompressedObject, this.storeName ) );
+			return uncompressedObject;
         }
 
         public bool Exists( object rawKey )

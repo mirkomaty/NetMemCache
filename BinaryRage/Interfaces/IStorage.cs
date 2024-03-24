@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BinaryRage
+namespace BinaryRage.Interfaces
 {
 	public interface IStorage
 	{

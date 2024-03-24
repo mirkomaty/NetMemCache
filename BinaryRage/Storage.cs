@@ -1,4 +1,6 @@
-﻿namespace BinaryRage
+﻿using BinaryRage.Interfaces;
+
+namespace BinaryRage
 {
 	public class Storage : IStorage
 	{

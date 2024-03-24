@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BinaryRage.Interfaces;
+using System;
 
 namespace BinaryRage
 {
