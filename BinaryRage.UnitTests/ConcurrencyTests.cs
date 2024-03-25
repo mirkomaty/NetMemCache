@@ -53,7 +53,7 @@ namespace BinaryRage.UnitTests
 
 		Task RunWriteTask( string key, Model m )
 		{
-			return this.binaryCache.Set<Model>( key, m );
+			return this.binaryCache.Set( key, m );
 		}
 		Task<Model> RunReadTask( string key )
 		{

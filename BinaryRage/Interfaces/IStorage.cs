@@ -11,7 +11,7 @@ namespace BinaryRage.Interfaces
 		/// <param name="value">A byte array representing the data</param>
 		/// <param name="store">The store</param>
 		/// <returns></returns>
-		Task Write( string key, byte[] value, string store );
+		Task Write( string key, CacheEntry cacheEntry, string store );
 
 		/// <summary>
 		/// Reads data from the store

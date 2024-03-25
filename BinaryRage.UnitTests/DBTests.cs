@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using NUnit.Framework.Legacy;
 using System.Diagnostics;
+using System.Text;
 
 namespace BinaryRage.UnitTests
 {
@@ -21,7 +22,7 @@ namespace BinaryRage.UnitTests
             public async Task ShouldInsertAnObjectToStore()
             {
                 var model = new Model{ Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F };
-                await this.binaryCache.Set<Model>( "myModel", model );
+                await this.binaryCache.Set( "myModel", model );
 
                 var result = await this.binaryCache.Get<Model>( "myModel" );
 
@@ -29,23 +30,23 @@ namespace BinaryRage.UnitTests
                 this.binaryCache.Remove( "myModel" );
             }
 
-			[Test]
-			public async Task ShouldBeAbleToInsertAndRetrieveNull()
-			{
-				Model model = null;
-				await this.binaryCache.Set<Model>( "nullModel", model );
+            [Test]
+            public async Task ShouldBeAbleToInsertAndRetrieveNull()
+            {
+                Model model = null;
+                await this.binaryCache.Set( "nullModel", model );
 
-				var result = await this.binaryCache.Get<Model>( "nullModel" );
+                var result = await this.binaryCache.Get<Model>( "nullModel" );
 
-				Assert.That( result == null );
-				this.binaryCache.Remove( "nullModel" );
-			}
+                Assert.That( result == null );
+                this.binaryCache.Remove( "nullModel" );
+            }
 
-			[Test]
+            [Test]
             public async Task ShouldInsertAndGetKeysWithInvalidChars()
             {
                 var model = new Model{Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F};
-                await this.binaryCache.Set<Model>( "my:Model", model );
+                await this.binaryCache.Set( "my:Model", model );
 
                 var result = await this.binaryCache.Get<Model>("my:Model");
 
@@ -54,38 +55,38 @@ namespace BinaryRage.UnitTests
                 Assert.That( !this.binaryCache.Exists( "my:Model" ) );
             }
 
-			[Test]
-			public async Task ShouldWorkWithObjectsAsKeys()
-			{
-				var model = new Model{ Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F };
+            [Test]
+            public async Task ShouldWorkWithObjectsAsKeys()
+            {
+                var model = new Model{ Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F };
                 var key = new { answer = 42, text = "foo" };
-				await this.binaryCache.Set<Model>( key, model );
+                await this.binaryCache.Set( key, model );
 
-				var result = await this.binaryCache.Get<Model>( key );
+                var result = await this.binaryCache.Get<Model>( key );
 
-				Assert.That( model.Equals( result ) );
-				this.binaryCache.Remove( key );
+                Assert.That( model.Equals( result ) );
+                this.binaryCache.Remove( key );
                 Assert.That( !this.binaryCache.Exists( key ) );
-			}
+            }
 
-			[Test]
-			public async Task ShouldOverwriteEntries()
-			{
-				var model1 = new Model{ Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F };
-				var model2 = new Model{ Title ="title2", ThumbUrl="http://thumb.com/title2.jpg", Description="description2", Price=6.0F };
-				await this.binaryCache.Set<Model>( "myModel", model1 );
-				await this.binaryCache.Set<Model>( "myModel", model2 );
+            [Test]
+            public async Task ShouldOverwriteEntries()
+            {
+                var model1 = new Model{ Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F };
+                var model2 = new Model{ Title ="title2", ThumbUrl="http://thumb.com/title2.jpg", Description="description2", Price=6.0F };
+                await this.binaryCache.Set( "myModel", model1 );
+                await this.binaryCache.Set( "myModel", model2 );
 
-				var result = await this.binaryCache.Get<Model>( "myModel" );
+                var result = await this.binaryCache.Get<Model>( "myModel" );
 
-				Assert.That( !model1.Equals( result ) );
-				Assert.That( model2.Equals( result ) );
-				this.binaryCache.Remove( "myModel" );
-			}
+                Assert.That( !model1.Equals( result ) );
+                Assert.That( model2.Equals( result ) );
+                this.binaryCache.Remove( "myModel" );
+            }
 
 
 
-			[Test]
+            [Test]
             public async Task ShouldInsertAListOfObjectsToStore()
             {
                 var models = new List<Model> {
@@ -94,7 +95,7 @@ namespace BinaryRage.UnitTests
                     new Model{Title ="title3", ThumbUrl="http://thumb.com/title3.jpg", Description="description3", Price=7.0F},
                 };
 
-                await this.binaryCache.Set<List<Model>>( "myModels", models );
+                await this.binaryCache.Set( "myModels", models );
 
                 var result = await this.binaryCache.Get<List<Model>>( "myModels" );
 
@@ -111,7 +112,7 @@ namespace BinaryRage.UnitTests
                 for (int i = 0; i < count; i++)
                 {
                     var model = new Model{Title ="title" + i, ThumbUrl=$"http://thumb.com/title{i}.jpg", Description=$"description{i}", Price=(float)i};
-                    await this.binaryCache.Set<Model>( "myModel" + i, model );
+                    await this.binaryCache.Set( "myModel" + i, model );
                 }
 
                 for (int i = 0; i < count; i++)
@@ -134,5 +135,6 @@ namespace BinaryRage.UnitTests
                 Debug.WriteLine( "Time with Delete: " + ts );
             }
         }
+
     }
 }

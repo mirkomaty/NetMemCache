@@ -1,0 +1,16 @@
+﻿using System;
+
+namespace BinaryRage
+{
+	public class CacheEntry
+	{
+		public CacheEntry( DateTime? expiryDate, object? value )
+		{
+			ExpiryDate = expiryDate;
+			Value = value;
+		}
+
+		public DateTime? ExpiryDate { get; }
+		public object? Value { get; set; }
+	}
+}

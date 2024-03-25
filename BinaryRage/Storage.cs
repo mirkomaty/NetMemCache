@@ -6,11 +6,13 @@ namespace BinaryRage
 	{
 		private const string DB_EXTENSION = ".odb";
 		private readonly IFolderStructure folderStructure;
+		private readonly IObjectSerializer objectSerializer;
 		object lockObject = new object();
 
-		public Storage( IFolderStructure? folderStructure = null )
+		public Storage( IObjectSerializer objectSerializer, IFolderStructure? folderStructure = null )
 		{
 			this.folderStructure = folderStructure == null ? new FolderStructure() : folderStructure;
+			this.objectSerializer = objectSerializer;
 		}
 
 		public void Remove(string key, string fileLocation)
@@ -22,13 +24,22 @@ namespace BinaryRage
 		}
 
 		/// <inheritdoc/>
-		public async Task Write(string key, byte[] value, string store)
+		public async Task Write(string key, CacheEntry cacheEntry, string store)
 		{
+			var storageEntry = new StorageEntry();
+				
 			//create folders
 			string dirstructure = CreateDirectoriesBasedOnKeyAndFilelocation(key, store);
 
+			using (var fileStream = File.OpenWrite( CombinePathAndKey( dirstructure, key ) ))
+			{
+				storageEntry.Stream = fileStream;
+				storageEntry.ExpiryDate = cacheEntry.ExpiryDate;
+				storageEntry.Type = cacheEntry.Value?.GetType();
+				storageEntry.Value = cacheEntry.Value;
+				await this.objectSerializer.SerializeAsync( storageEntry, fileStream );
+			}
 			//Write the file to it's location
-            await File.WriteAllBytesAsync(CombinePathAndKey(dirstructure, key), value);
 		}
 
 		/// <inheritdoc/>

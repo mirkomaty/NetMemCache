@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Text;
 using BinaryRage.Interfaces;
 
@@ -9,9 +10,10 @@ namespace BinaryRage
 	/// </summary>
     public class BinaryCache
     {
+		private static ConcurrentDictionary<string, CacheEntry> cacheDictionary = new ConcurrentDictionary<string, CacheEntry>();
 		private readonly IStorage storage;
 
-        public BinaryCache(string storeName, IStorage? storage = null, IFolderStructure? folderStructure = null, IObjectSerializer? objectSerializer = null)
+		public BinaryCache(string storeName, IStorage? storage = null, IFolderStructure? folderStructure = null, IObjectSerializer? objectSerializer = null)
 		{
 			this.storeName = storeName;
 			this.objectSerializer = objectSerializer != null ? objectSerializer : new ObjectSerializer();
@@ -61,42 +63,54 @@ namespace BinaryRage
 
 		private string CacheKey( string key ) => this.storeName + key;
 
-		public async Task Set<T>(object rawKey, T value)
+		public async Task Set(object rawKey, object value)
         {
             var key = ComputeKey( rawKey );
-            SimpleObject simpleObject = new SimpleObject ( key, value, this.storeName );
+            CacheEntry cacheEntry = new CacheEntry ( null, value );
 
-            Cache.CacheDic[CacheKey(key)] = simpleObject;
+            cacheDictionary[CacheKey(key)] = cacheEntry;
 
-            await this.storage.Write(simpleObject.Key, await this.objectSerializer.Serialize(value),
-                simpleObject.Store);
+            await this.storage.Write(key, cacheEntry, this.storeName);
         }
 
         public void Remove(object rawKey)
         {
 			var key = ComputeKey(rawKey);
-			Cache.CacheDic.Remove( CacheKey( key ), out _ );
+			cacheDictionary.Remove( CacheKey( key ), out _ );
             this.storage.Remove( key, this.storeName );
         }
 
+		public async Task<Tuple<bool, object?>> TryGetValue( object rawKey )
+		{
+			var key = ComputeKey(rawKey);
+			var result = new Tuple<bool,object?>(false, null);			
+
+			CacheEntry? cacheEntry;
+			if (!cacheDictionary.TryGetValue( CacheKey( key ), out cacheEntry ))
+			{
+				var rawData = await this.storage.Read(key, this.storeName);
+				if (rawData == null)
+					return result;
+
+				cacheEntry = (CacheEntry?) await this.objectSerializer.DeserializeAsync( rawData );
+				cacheDictionary.TryAdd( key, cacheEntry! );
+			}
+
+			result = new Tuple<bool,object?>(true, cacheEntry!.Value);
+			return result;
+		}
+
 		public async Task<T?> Get<T>(object rawKey)
         {
-			var key = ComputeKey(rawKey);
-
-			SimpleObject? simpleObjectFromCache;
-			if (Cache.CacheDic.TryGetValue( CacheKey( key ), out simpleObjectFromCache ))
-                return (T?)simpleObjectFromCache.Value;
-			var rawData = await this.storage.Read(key, this.storeName);
-			T? uncompressedObject = (T?) await this.objectSerializer.Deserialize( rawData );
-			Cache.CacheDic.TryAdd( CacheKey( key ), new SimpleObject (key, uncompressedObject, this.storeName ) );
-			return uncompressedObject;
+			var tuple = await TryGetValue(rawKey);
+			return (T?) ( tuple.Item1 ? tuple.Item2 : null);
         }
 
         public bool Exists( object rawKey )
         {
 			var key = ComputeKey(rawKey);
 
-			if (Cache.CacheDic.ContainsKey( CacheKey( key ) )) 
+			if (cacheDictionary.ContainsKey( CacheKey( key ) )) 
 				return true;
 
 			return this.storage.Exists( key, this.storeName );

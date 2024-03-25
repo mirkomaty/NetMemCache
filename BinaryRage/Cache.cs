@@ -8,6 +8,6 @@ namespace BinaryRage
 {
     internal class Cache
     {
-        public static ConcurrentDictionary<string, SimpleObject> CacheDic = new ConcurrentDictionary<string, SimpleObject>();
+        
     }
 }

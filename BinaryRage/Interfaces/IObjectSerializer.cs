@@ -12,14 +12,14 @@
 		/// </summary>
 		/// <param name="obj"></param>
 		/// <returns></returns>
-		Task<byte[]> Serialize( object? obj );
+		Task SerializeAsync( StorageEntry storageEntry, Stream stream );
 
 		/// <summary>
 		/// Deserializes an object from a byte array
 		/// </summary>
 		/// <param name="array"></param>
 		/// <returns></returns>
-		Task<object?> Deserialize( byte[] array );
+		Task<StorageEntry?> DeserializeAsync( Stream stream );
 
 		/// <summary>
 		/// Performs the core deserialization
