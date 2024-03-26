@@ -9,116 +9,101 @@ namespace BinaryRage
 {
 	internal class ObjectSerializer : IObjectSerializer
 	{
-		public async Task<object?> Deserialize( byte[] array )
+		static readonly int headerLength = 2 * sizeof(byte) + sizeof(long);
+
+		///<inheritdoc/>
+		public async Task<StorageEntry> DeserializeAsync( Stream stream )
 		{
-			byte[] compressGZipData = await DecompressGZip(array);
-			return ByteArrayToObject(compressGZipData);
+			var headerBytes = new byte[headerLength];
+			var bytesRead = await stream.ReadAsync( headerBytes, 0, headerLength );
+			
+			if (bytesRead < headerLength)
+				throw new Exception( "Wrong file format: can't read header" );
+
+			var isCompressed = headerBytes[0] != 0;
+			var isSerialized = headerBytes[1] != 0;
+			var ticks = BitConverter.ToInt64(headerBytes, 2);
+			string typeStr;
+			string storedString;
+
+			Stream innerStream = isCompressed ? new GZipStream(stream, CompressionMode.Decompress) : stream;
+			using (innerStream)
+			{
+				using (var sr = new StreamReader( innerStream ))
+				{
+					var ts = await sr.ReadLineAsync();
+					if (ts == null)
+						throw new Exception( "Can't read type information from the stream" );
+					typeStr = ts;
+
+					storedString = await sr.ReadToEndAsync();
+				}
+			}
+
+			StorageEntry result = new StorageEntry();
+			result.IsCompressed = isCompressed;
+			result.IsSerialized = isSerialized;
+			result.ExpiryDate = ticks != 0L ? new DateTime( ticks ) : null;
+			result.Type = Type.GetType(typeStr);
+
+			if (isSerialized)
+			{
+				if (result.Type == null)
+					throw new Exception( $"Can't deserialize data because the type '{typeStr}' can't be loaded" );
+				result.Value = JsonConvert.DeserializeObject( storedString, result.Type );
+			}
+			else
+			{
+				result.Value = storedString;
+			}
+
+			return result;
 		}
 
-		public async Task<byte[]> SerializeAsync( StorageEntry storageEntry, Stream stream )
+		///<inheritdoc/>
+		public async Task SerializeAsync( StorageEntry storageEntry, Stream stream )
 		{
-			if (storageEntry.Value == null || storageEntry.Value.GetType() == typeof( string ) && ( (string) storageEntry.Value ).Length < 200)
+			string? valueToWrite = null;
+
+			if (storageEntry.Value != null)
+			{
+				if (storageEntry.Value is string s)
+				{
+					storageEntry.IsSerialized = false;
+					valueToWrite = s;
+				}
+				else
+				{
+					valueToWrite = JsonConvert.SerializeObject( storageEntry.Value );
+					storageEntry.IsSerialized = true;
+				}
+			}
+
+			// Nulltests for type follow later
+			storageEntry.IsCompressed = valueToWrite != null && valueToWrite.Length + storageEntry.Type.FullName.Length > 200;
+
+			var headerBytes = new byte[headerLength];
+			headerBytes[0] = storageEntry.IsCompressed ? (byte) 1 : (byte) 0;
+			headerBytes[1] = storageEntry.IsSerialized ? (byte) 1 : (byte) 0;
+			var ticks = storageEntry.ExpiryDate.HasValue ? storageEntry.ExpiryDate.Value.Ticks : 0L;
+			var tickArray = BitConverter.GetBytes( ticks );
+			for (int i = 0; i < tickArray.Length; i++)
+			{
+				headerBytes[i + 2] = tickArray[i];
+			}
+
+			stream.Write( headerBytes, 0, headerBytes.Length );
+
+			var innerStream = storageEntry.IsCompressed ? new GZipStream(stream, CompressionMode.Compress) : stream;
+			using (innerStream)
 			{
 				using (var sw = new StreamWriter( stream, Encoding.UTF8 ))
 				{
-					sw.Write( (byte) 1 ); // compressed
-					sw.Write( (byte) 1 ); // serialized
-					await sw.WriteAsync( storageEntry.Type!.FullName );
-					if (storageEntry == null)
-					{ 
-						//Hier muss man die Fälle als String oder einen Anderen Typen unterscheiden
-						........
-					}
-					else
-						await sw.WriteAsync( (string)storageEntry.Value );
+					await sw.WriteLineAsync( storageEntry.Type!.FullName );
+					await sw.WriteAsync( valueToWrite );
 				}
 			}
-			else
-			{
-				var json = JsonConvert.SerializeObject(storageEntry.Value);
-
-				using (GZipStream gzipStream = new GZipStream( stream, CompressionMode.Compress, false ))
-				{
-					using (var sw = new StreamWriter( gzipStream, Encoding.UTF8 ))
-					{
-						sw.Write( (byte) 1 ); // compressed
-						sw.Write( (byte) 1 ); // serialized
-						await sw.WriteAsync( storageEntry.Type!.FullName );
-						await sw.WriteAsync( json );
-					}
-				}
-			}
-		}
-
-		async static Task<byte[]> DecompressGZip( byte[] gzip )
-		{
-			using (GZipStream stream = new GZipStream( new MemoryStream( gzip ), CompressionMode.Decompress ))
-			{
-				using (MemoryStream memory = new MemoryStream())
-				{
-					await stream.CopyToAsync( memory );
-					return memory.ToArray();
-				}
-			}
-		}
-
-		async static Task<byte[]> CompressGZip( byte[] raw )
-		{
-			using (MemoryStream memory = new MemoryStream())
-			{
-				using (GZipStream gzip = new GZipStream( memory, CompressionMode.Compress, false ))
-				{
-					await gzip.WriteAsync( raw, 0, raw.Length );
-				}
-
-				return memory.ToArray();
-			}
-		}
-
-
-		public byte[] ObjectToByteArray( object? obj )
-		{
-			if (obj == null)
-				return new byte[0];
-
-			object obj2 = obj;
-
-			string stringData;
-			if (obj is string s)
-			{
-				stringData = s;
-			}
-			else
-			{
-				stringData = JsonConvert.SerializeObject( obj );
-			}
-
-			var typeStr = obj2.GetType().FullName;
-
-				//BinaryFormatter formatter = new BinaryFormatter();
-				MemoryStream ms = new MemoryStream();
-
-			using (ms)
-			{
-				JsonConvert.SerializeObject(obj)
-				formatter.Serialize( ms, obj );
-			}
-
-			return ms.ToArray();
-		}
-
-		//Convert BytesArray to object
-		public Object? ByteArrayToObject( byte[] arrBytes )
-		{
-			if (arrBytes == null || arrBytes.Length == 0)
-				return null;
-
-			MemoryStream memStream = new MemoryStream();
-			BinaryFormatter binForm = new BinaryFormatter();
-			memStream.Write( arrBytes, 0, arrBytes.Length );
-			memStream.Seek( 0, SeekOrigin.Begin );
-			return (Object?) binForm.Deserialize( memStream );
-		}
+		}	
 
 		///<inheritdoc/>
 		public string SerializeKey( object rawKey )

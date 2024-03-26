@@ -19,28 +19,16 @@
 		/// </summary>
 		/// <param name="array"></param>
 		/// <returns></returns>
-		Task<StorageEntry?> DeserializeAsync( Stream stream );
-
-		/// <summary>
-		/// Performs the core deserialization
-		/// </summary>
-		/// <param name="arrBytes"></param>
-		/// <returns></returns>
-		Object? ByteArrayToObject( byte[] arrBytes );
-
-		/// <summary>
-		/// Performs the core serialization
-		/// </summary>
-		/// <param name="obj"></param>
-		/// <returns></returns>
-		byte[] ObjectToByteArray( object? obj );
+		Task<StorageEntry> DeserializeAsync( Stream stream );
 
 		/// <summary>
 		/// Serializes an object to a unique key string
 		/// </summary>
 		/// <param name="rawKey"></param>
 		/// <returns></returns>
-		/// <remarks>The result does not meet any requirements for the key string</remarks>
+		/// <remarks>The result does not guarantee that any requirements for the string are met. 
+		/// If the key is to be used for names in the file system, it should be encoded accordingly.
+		/// </remarks>
 		string SerializeKey( object rawKey );
 	}
 }

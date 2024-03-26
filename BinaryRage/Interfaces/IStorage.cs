@@ -19,7 +19,7 @@ namespace BinaryRage.Interfaces
 		/// <param name="key">The key</param>
 		/// <param name="store">The store</param>
 		/// <returns></returns>
-		Task<byte[]> Read( string key, string store );
+		Task<CacheEntry?> Read( string key, string store );
 
 		/// <summary>
 		/// Checks, if an entry exists in the store

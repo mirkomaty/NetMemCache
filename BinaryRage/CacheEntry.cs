@@ -10,6 +10,12 @@ namespace BinaryRage
 			Value = value;
 		}
 
+		public CacheEntry(StorageEntry storageEntry)
+		{
+			ExpiryDate = storageEntry.ExpiryDate;
+			Value = storageEntry.Value;
+		}
+
 		public DateTime? ExpiryDate { get; }
 		public object? Value { get; set; }
 	}

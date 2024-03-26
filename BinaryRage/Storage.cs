@@ -43,9 +43,19 @@ namespace BinaryRage
 		}
 
 		/// <inheritdoc/>
-		public async Task<byte[]> Read(string key, string store)
+		public async Task<CacheEntry?> Read(string key, string store)
 		{
-			return await File.ReadAllBytesAsync(GetExactFileLocation(key, store));
+			StorageEntry storageEntry;
+			string path = GetExactFileLocation( key, store );
+			if (!File.Exists( path ))
+				return null;
+
+			using (var stream = File.OpenRead( path ))
+			{
+				storageEntry = await this.objectSerializer.DeserializeAsync(stream);
+			}
+
+			return new CacheEntry( storageEntry );
 		}
 
 		/// <inheritdoc/>

@@ -18,7 +18,7 @@ namespace BinaryRage
 			this.storeName = storeName;
 			this.objectSerializer = objectSerializer != null ? objectSerializer : new ObjectSerializer();
 			this.folderStructure = folderStructure != null ? folderStructure : new FolderStructure();
-			this.storage = storage != null ? storage : new Storage(this.folderStructure);
+			this.storage = storage != null ? storage : new Storage(this.objectSerializer, this.folderStructure);
 		}
 
 		static readonly char[] invalid = Path.GetInvalidFileNameChars();
@@ -80,30 +80,27 @@ namespace BinaryRage
             this.storage.Remove( key, this.storeName );
         }
 
-		public async Task<Tuple<bool, object?>> TryGetValue( object rawKey )
+		public async Task<(bool Found, object? Value)> TryGetValue( object rawKey )
 		{
 			var key = ComputeKey(rawKey);
-			var result = new Tuple<bool,object?>(false, null);			
 
 			CacheEntry? cacheEntry;
 			if (!cacheDictionary.TryGetValue( CacheKey( key ), out cacheEntry ))
 			{
 				var rawData = await this.storage.Read(key, this.storeName);
 				if (rawData == null)
-					return result;
+					return (false, null);
 
-				cacheEntry = (CacheEntry?) await this.objectSerializer.DeserializeAsync( rawData );
 				cacheDictionary.TryAdd( key, cacheEntry! );
 			}
 
-			result = new Tuple<bool,object?>(true, cacheEntry!.Value);
-			return result;
+			return (true, cacheEntry!.Value);
 		}
 
 		public async Task<T?> Get<T>(object rawKey)
         {
 			var tuple = await TryGetValue(rawKey);
-			return (T?) ( tuple.Item1 ? tuple.Item2 : null);
+			return (T?) ( tuple.Found ? tuple.Value : null);
         }
 
         public bool Exists( object rawKey )
