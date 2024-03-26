@@ -13,7 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\BinaryRage\NetMemCache.csproj" />
+	  <ProjectReference Include="..\NetMemCache\NetMemCache.csproj" />
 	</ItemGroup>
 
 </Project>
