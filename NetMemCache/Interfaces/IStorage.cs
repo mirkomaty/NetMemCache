@@ -35,5 +35,10 @@ namespace NetMemCache.Interfaces
 		/// <param name="key">The key</param>
 		/// <param name="store">The store</param>
 		void Remove( string key, string store );
+
+		/// <summary>
+		/// Gets the file extension used in the storage.
+		/// </summary>
+		string Extension { get; }
 	}
 }

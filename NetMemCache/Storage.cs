@@ -4,7 +4,7 @@ namespace NetMemCache
 {
 	public class Storage : IStorage
 	{
-		private const string DB_EXTENSION = ".odb";
+		private static readonly string DB_EXTENSION = ".nmc";
 		private readonly IFolderStructure folderStructure;
 		private readonly IObjectSerializer objectSerializer;
 		object lockObject = new object();
@@ -14,6 +14,8 @@ namespace NetMemCache
 			this.folderStructure = folderStructure == null ? new FolderStructure() : folderStructure;
 			this.objectSerializer = objectSerializer;
 		}
+
+		public string Extension => DB_EXTENSION;
 
 		public void Remove(string key, string fileLocation)
 		{

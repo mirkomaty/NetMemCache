@@ -10,7 +10,7 @@ namespace NetMemCache.UnitTests
         [TestFixture]
         public class InsertTests
         {
-            MemCache memCache = new MemCache( "bc_file" );
+            MemCache memCache = new MemCache( "TestStore" );
 
             public InsertTests()
             {
@@ -181,6 +181,20 @@ namespace NetMemCache.UnitTests
 
                 // 2nd time we get false because of object deletion				
 				Assert.That( this.memCache.Exists( "myModel" ), Is.False );
+			}
+
+			[Test]
+			public async Task RemoveExpiredShouldRemoveEntries()
+			{
+				var model = new Model{ Title = "Test" };
+				await this.memCache.Set( "myModel", model, 0 );
+
+                var secondMemCache = new MemCache("TestStore");
+                secondMemCache.RemoveExpired();
+
+				var result = await secondMemCache.TryGetValue( "myModel" );
+
+				Assert.That( result.Found, Is.False );
 			}
 
 			[Test]

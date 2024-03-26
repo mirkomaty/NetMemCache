@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Security.AccessControl;
 using NetMemCache.Interfaces;
 
 namespace NetMemCache
@@ -162,6 +163,31 @@ namespace NetMemCache
 					if (this.storage.Exists( key, this.storeName ))
 						this.storage.Remove( key, this.storeName );
 				}
+			}
+
+			var baseFolder = this.storeName;
+			RemoveExpired( baseFolder, now );
+		}
+
+		private void RemoveExpired( string path, DateTime now )
+		{
+			var dirs = Directory.GetDirectories(path);
+			foreach (var dir in dirs)
+			{
+				RemoveExpired( dir, now );
+			}
+
+			var fileNames = Directory.GetFiles(path, $"*{this.storage.Extension}");
+			foreach (var fileName in fileNames)
+			{
+				DateTime? expiryDate;
+				using (var stream = File.OpenRead(fileName))
+				{
+					expiryDate = this.objectSerializer.GetExpiryDate( stream );
+				}
+
+				if (expiryDate.HasValue && expiryDate <= now)
+					File.Delete( fileName );
 			}
 		}
     }

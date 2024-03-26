@@ -104,6 +104,15 @@ namespace NetMemCache
 					await sw.WriteAsync( valueToWrite );
 				}
 			}
-		}	
+		}
+
+		///<inheritdoc/>
+		public DateTime? GetExpiryDate(Stream stream)
+		{
+			var headerBytes = new byte[headerLength];
+			stream.Read( headerBytes, 0, headerLength );
+			var ticks = BitConverter.ToInt64(headerBytes, 2);
+			return ticks != 0L ? new DateTime( ticks ) : null;
+		}
 	}
 }

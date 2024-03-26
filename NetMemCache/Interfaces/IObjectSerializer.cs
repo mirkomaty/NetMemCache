@@ -21,5 +21,12 @@
 		/// <returns></returns>
 		Task<StorageEntry> DeserializeAsync( Stream stream );
 
+		/// <summary>
+		/// Gets the expiry date of a file
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <returns></returns>
+		DateTime? GetExpiryDate( Stream stream );
+
 	}
 }
