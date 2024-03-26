@@ -1,4 +1,4 @@
-﻿namespace BinaryRage.Interfaces
+﻿namespace NetMemCache.Interfaces
 {
     public interface IKeyHandler
     {

@@ -2,17 +2,17 @@ using System;
 using NUnit.Framework;
 
 
-namespace BinaryRage.UnitTests
+namespace NetMemCache.UnitTests
 {
 	[TestFixture]
 	public class ConcurrencyTests
 	{
-		NetMemCache binaryCache = new NetMemCache( "ConcurrencyTests" );
+		MemCache memCache = new MemCache( "ConcurrencyTests" );
 
 		public ConcurrencyTests()
 		{
-			if (Directory.Exists( binaryCache.StoreName ) )
-				Directory.Delete( binaryCache.StoreName, recursive: true);
+			if (Directory.Exists( memCache.StoreName ) )
+				Directory.Delete( memCache.StoreName, recursive: true);
 		}
 
 		[Test]
@@ -47,17 +47,17 @@ namespace BinaryRage.UnitTests
 			for (int i = 0; i < count; i++)
 			{
 				Assert.That( m.Description.Equals( readTasks[i].GetAwaiter().GetResult().Description ) );
-				this.binaryCache.Remove( keys[i] );
+				this.memCache.Remove( keys[i] );
 			}
 		}
 
 		Task RunWriteTask( string key, Model m )
 		{
-			return this.binaryCache.Set( key, m );
+			return this.memCache.Set( key, m );
 		}
 		Task<Model> RunReadTask( string key )
 		{
-			return this.binaryCache.Get<Model>( key );
+			return this.memCache.Get<Model>( key );
 		}
 	}
 }

@@ -1,12 +1,9 @@
-﻿using BinaryRage.Interfaces;
+﻿using NetMemCache.Interfaces;
 using System.IO.Compression;
-using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json;
-using System;
 using System.Text;
-using System.Reflection;
 
-namespace BinaryRage
+namespace NetMemCache
 {
 	internal class ObjectSerializer : IObjectSerializer
 	{

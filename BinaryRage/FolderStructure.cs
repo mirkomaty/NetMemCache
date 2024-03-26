@@ -1,7 +1,7 @@
-﻿using BinaryRage.Interfaces;
+﻿using NetMemCache.Interfaces;
 using System;
 
-namespace BinaryRage
+namespace NetMemCache
 {
 	public class FolderStructure : IFolderStructure
 	{

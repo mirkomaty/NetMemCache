@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using BinaryRage.Interfaces;
+using NetMemCache.Interfaces;
 
-namespace BinaryRage
+namespace NetMemCache
 {
 	/// <summary>
 	/// Represents a KeyValue store
 	/// </summary>
-    public class NetMemCache
+    public class MemCache
     {
 		private static ConcurrentDictionary<string, CacheEntry> cacheDictionary = new ConcurrentDictionary<string, CacheEntry>();
 		private readonly IStorage storage;
@@ -26,7 +26,7 @@ namespace BinaryRage
 		/// <param name="folderStructure"></param>
 		/// <param name="objectSerializer"></param>
 		/// <param name="keyHandler"></param>
-		public NetMemCache(
+		public MemCache(
 			string storeName, 
 			IStorage? storage = null, 
 			IFolderStructure? folderStructure = null, 

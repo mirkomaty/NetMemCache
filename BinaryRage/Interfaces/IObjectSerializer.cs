@@ -1,4 +1,4 @@
-﻿namespace BinaryRage.Interfaces
+﻿namespace NetMemCache.Interfaces
 {
 	/// <summary>
 	/// Interface for Serializers, which can convert objects to byte streams

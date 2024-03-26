@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BinaryRage.UnitTests
+namespace NetMemCache.UnitTests
 {
     [Serializable]
     public class Model : IEquatable<Model>

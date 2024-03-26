@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BinaryRage.Interfaces
+namespace NetMemCache.Interfaces
 {
 	public interface IStorage
 	{

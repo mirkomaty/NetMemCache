@@ -1,4 +1,4 @@
-﻿namespace BinaryRage
+﻿namespace NetMemCache
 {
 	public class StorageEntry
 	{
