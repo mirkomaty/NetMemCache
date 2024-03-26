@@ -144,5 +144,25 @@ namespace NetMemCache
 
 			return this.storage.Exists( key, this.storeName );
         }
+
+		/// <summary>
+		/// Removed expired entries from the memory cache and from disk.
+		/// </summary>
+		public void RemoveExpired()
+		{
+			var now = DateTime.Now;
+
+			foreach (var key in cacheDictionary.Keys)
+			{
+				var entry = cacheDictionary[key];
+				if (entry.ExpiryDate.HasValue && entry.ExpiryDate <= now)
+				{
+					cacheDictionary.Remove( key, out _ );
+
+					if (this.storage.Exists( key, this.storeName ))
+						this.storage.Remove( key, this.storeName );
+				}
+			}
+		}
     }
 }
