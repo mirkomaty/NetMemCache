@@ -7,7 +7,7 @@ namespace BinaryRage
 	/// <summary>
 	/// Represents a KeyValue store
 	/// </summary>
-    public class BinaryCache
+    public class NetMemCache
     {
 		private static ConcurrentDictionary<string, CacheEntry> cacheDictionary = new ConcurrentDictionary<string, CacheEntry>();
 		private readonly IStorage storage;
@@ -26,7 +26,7 @@ namespace BinaryRage
 		/// <param name="folderStructure"></param>
 		/// <param name="objectSerializer"></param>
 		/// <param name="keyHandler"></param>
-		public BinaryCache(
+		public NetMemCache(
 			string storeName, 
 			IStorage? storage = null, 
 			IFolderStructure? folderStructure = null, 

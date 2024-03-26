@@ -7,7 +7,7 @@ namespace BinaryRage.UnitTests
 	[TestFixture]
 	public class ConcurrencyTests
 	{
-		BinaryCache binaryCache = new BinaryCache( "ConcurrencyTests" );
+		NetMemCache binaryCache = new NetMemCache( "ConcurrencyTests" );
 
 		public ConcurrencyTests()
 		{

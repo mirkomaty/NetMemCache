@@ -10,36 +10,36 @@ namespace BinaryRage.UnitTests
         [TestFixture]
         public class InsertTests
         {
-            BinaryCache binaryCache = new BinaryCache( "bc_file" );
+            NetMemCache nmCache = new NetMemCache( "bc_file" );
 
             public InsertTests()
             {
-                if (Directory.Exists( binaryCache.StoreName ))
-                    Directory.Delete( binaryCache.StoreName, recursive: true );
+                if (Directory.Exists( nmCache.StoreName ))
+                    Directory.Delete( nmCache.StoreName, recursive: true );
             }
 
             [Test]
             public async Task ShouldInsertAndRetrieveASmallObject()
             {
                 var model = new Model{ Title = "Test" };
-                await this.binaryCache.Set( "myModel", model );
+                await this.nmCache.Set( "myModel", model );
 
-                var result = await this.binaryCache.Get<Model>( "myModel" );
+                var result = await this.nmCache.Get<Model>( "myModel" );
 
                 Assert.That( model.Equals( result ) );
-                this.binaryCache.Remove( "myModel" );
+                this.nmCache.Remove( "myModel" );
             }
 
 			[Test]
 			public async Task ShouldInsertAndRetrieveABigObject()
 			{
 				var model = new Model{ Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,", Price=5.0F };
-				await this.binaryCache.Set( "myModel", model );
+				await this.nmCache.Set( "myModel", model );
 
-				var result = await this.binaryCache.Get<Model>( "myModel" );
+				var result = await this.nmCache.Get<Model>( "myModel" );
 
 				Assert.That( model.Equals( result ) );
-				this.binaryCache.Remove( "myModel" );
+				this.nmCache.Remove( "myModel" );
 			}
 
 
@@ -47,23 +47,23 @@ namespace BinaryRage.UnitTests
             public async Task ShouldBeAbleToInsertAndRetrieveNull()
             {
                 Model model = null;
-                await this.binaryCache.Set( "nullModel", model );
+                await this.nmCache.Set( "nullModel", model );
 
-                var result = await this.binaryCache.Get<Model>( "nullModel" );
+                var result = await this.nmCache.Get<Model>( "nullModel" );
 
                 Assert.That( result == null );
-                this.binaryCache.Remove( "nullModel" );
+                this.nmCache.Remove( "nullModel" );
             }
 
 			[Test]
 			public async Task ShouldReturnCorrectTypeIfNull()
 			{
-				await this.binaryCache.Set<Model>( "myModelTgvNull", null );
+				await this.nmCache.Set<Model>( "myModelTgvNull", null );
 
-				Model result = await this.binaryCache.Get<Model>( "myModelTgvNull" );
+				Model result = await this.nmCache.Get<Model>( "myModelTgvNull" );
 
 				Assert.That( result == null );
-				this.binaryCache.Remove( "myModelTgvNull" );
+				this.nmCache.Remove( "myModelTgvNull" );
 			}
 
 			[Test]
@@ -82,7 +82,7 @@ namespace BinaryRage.UnitTests
 			[Test]
 			public async Task GetShouldReturnNullIfNotFound()
 			{
-				var result = await this.binaryCache.Get<Model>( "notFoundModel" );
+				var result = await this.nmCache.Get<Model>( "notFoundModel" );
 
 				Assert.That( result == null );
 			}
@@ -90,7 +90,7 @@ namespace BinaryRage.UnitTests
 			[Test]
 			public async Task TryGetValueShouldReturnFalseIfNotFound()
 			{
-				var result = await this.binaryCache.TryGetValue( "notFoundModel" );
+				var result = await this.nmCache.TryGetValue( "notFoundModel" );
 
 				Assert.That( !result.Found );
 			}
@@ -99,26 +99,26 @@ namespace BinaryRage.UnitTests
 			public async Task TryGetValueShouldRetrieveObject()
 			{
 				var model = new Model{ Title = "Test" };
-				await this.binaryCache.Set<Model>( "myModelTgv", model );
+				await this.nmCache.Set<Model>( "myModelTgv", model );
 
-				var result = await this.binaryCache.TryGetValue( "myModelTgv" );
+				var result = await this.nmCache.TryGetValue( "myModelTgv" );
 
                 Assert.That( result.Found );
 				Assert.That( model.Equals( result.Value ) );
-				this.binaryCache.Remove( "myModelTgv" );
+				this.nmCache.Remove( "myModelTgv" );
 			}
 
 			[Test]
             public async Task ShouldInsertAndGetKeysWithInvalidChars()
             {
                 var model = new Model{Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F};
-                await this.binaryCache.Set( "my:Model", model );
+                await this.nmCache.Set( "my:Model", model );
 
-                var result = await this.binaryCache.Get<Model>("my:Model");
+                var result = await this.nmCache.Get<Model>("my:Model");
 
                 Assert.That( model.Equals( result ) );
-                this.binaryCache.Remove( "my:Model" );
-                Assert.That( !this.binaryCache.Exists( "my:Model" ) );
+                this.nmCache.Remove( "my:Model" );
+                Assert.That( !this.nmCache.Exists( "my:Model" ) );
             }
 
             [Test]
@@ -126,13 +126,13 @@ namespace BinaryRage.UnitTests
             {
                 var model = new Model{ Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F };
                 var key = new { answer = 42, text = "foo" };
-                await this.binaryCache.Set( key, model );
+                await this.nmCache.Set( key, model );
 
-                var result = await this.binaryCache.Get<Model>( key );
+                var result = await this.nmCache.Get<Model>( key );
 
                 Assert.That( model.Equals( result ) );
-                this.binaryCache.Remove( key );
-                Assert.That( !this.binaryCache.Exists( key ) );
+                this.nmCache.Remove( key );
+                Assert.That( !this.nmCache.Exists( key ) );
             }
 
             [Test]
@@ -140,14 +140,14 @@ namespace BinaryRage.UnitTests
             {
                 var model1 = new Model{ Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F };
                 var model2 = new Model{ Title ="title2", ThumbUrl="http://thumb.com/title2.jpg", Description="description2", Price=6.0F };
-                await this.binaryCache.Set( "myModel", model1 );
-                await this.binaryCache.Set( "myModel", model2 );
+                await this.nmCache.Set( "myModel", model1 );
+                await this.nmCache.Set( "myModel", model2 );
 
-                var result = await this.binaryCache.Get<Model>( "myModel" );
+                var result = await this.nmCache.Get<Model>( "myModel" );
 
                 Assert.That( !model1.Equals( result ) );
                 Assert.That( model2.Equals( result ) );
-                this.binaryCache.Remove( "myModel" );
+                this.nmCache.Remove( "myModel" );
             }
 
 
@@ -161,26 +161,26 @@ namespace BinaryRage.UnitTests
                     new Model{Title ="title3", ThumbUrl="http://thumb.com/title3.jpg", Description="description3", Price=7.0F},
                 };
 
-                await this.binaryCache.Set( "myModels", models );
+                await this.nmCache.Set( "myModels", models );
 
-                var result = await this.binaryCache.Get<List<Model>>( "myModels" );
+                var result = await this.nmCache.Get<List<Model>>( "myModels" );
 
                 CollectionAssert.AreEqual( models, result );
-                this.binaryCache.Remove( "myModels" );
+                this.nmCache.Remove( "myModels" );
             }
 
 			[Test]
 			public async Task ShouldTakeExpiryIntoAccount()
 			{
 				var model = new Model{ Title = "Test" };
-				await this.binaryCache.Set( "myModel", model, 0 ); // Expires immediately
+				await this.nmCache.Set( "myModel", model, 0 ); // Expires immediately
 
                 // 1st time we get false because of expiration
-				var result = await this.binaryCache.TryGetValue( "myModel" );
+				var result = await this.nmCache.TryGetValue( "myModel" );
 				Assert.That( result.Found, Is.False );
 
                 // 2nd time we get false because of object deletion				
-				Assert.That( this.binaryCache.Exists( "myModel" ), Is.False );
+				Assert.That( this.nmCache.Exists( "myModel" ), Is.False );
 			}
 
 			[Test]
@@ -193,13 +193,13 @@ namespace BinaryRage.UnitTests
                 for (int i = 0; i < count; i++)
                 {
                     var model = new Model{Title ="title" + i, ThumbUrl=$"http://thumb.com/title{i}.jpg", Description=$"{trappatoni}{i}", Price=(float)i};
-                    await this.binaryCache.Set( "myModel" + i, model );
+                    await this.nmCache.Set( "myModel" + i, model );
                 }
 
                 for (int i = 0; i < count; i++)
                 {
                     var model = new Model { Title = "title" + i, ThumbUrl = $"http://thumb.com/title{i}.jpg", Description = $"{trappatoni}{i}", Price = (float) i };
-                    var result = await this.binaryCache.Get<Model>("myModel" + i);
+                    var result = await this.nmCache.Get<Model>("myModel" + i);
 
                     Assert.That( model.Equals( result ) );
                 }
@@ -209,7 +209,7 @@ namespace BinaryRage.UnitTests
 
                 for (int i = 0; i < count; i++)
                 {
-                    this.binaryCache.Remove( "myModel" + i );
+                    this.nmCache.Remove( "myModel" + i );
                 }
 
                 ts = DateTime.Now - dt;

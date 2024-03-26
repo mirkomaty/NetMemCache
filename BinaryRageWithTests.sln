@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34616.47
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinaryRage", "BinaryRage\BinaryRage.csproj", "{F6B2D67F-F0A5-4A12-8EC4-D4A7F7286C7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetMemCache", "BinaryRage\NetMemCache.csproj", "{F6B2D67F-F0A5-4A12-8EC4-D4A7F7286C7D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BinaryRage.FunctionalTests", "BinaryRage.UnitTests\BinaryRage.FunctionalTests.csproj", "{99C0BAD9-C6BF-4C37-BB88-1598A8913638}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetMemCacheTests", "BinaryRage.UnitTests\NetMemCacheTests.csproj", "{99C0BAD9-C6BF-4C37-BB88-1598A8913638}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
