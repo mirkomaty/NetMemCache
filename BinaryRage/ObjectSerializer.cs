@@ -4,6 +4,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json;
 using System;
 using System.Text;
+using System.Reflection;
 
 namespace BinaryRage
 {
@@ -99,7 +100,8 @@ namespace BinaryRage
 			{
 				using (var sw = new StreamWriter( stream, Encoding.UTF8 ))
 				{
-					await sw.WriteLineAsync( storageEntry.Type!.FullName );
+					Type t = storageEntry.Type!;
+					await sw.WriteLineAsync( t.FullName + "," +  t.Assembly.FullName );
 					await sw.WriteAsync( valueToWrite );
 				}
 			}

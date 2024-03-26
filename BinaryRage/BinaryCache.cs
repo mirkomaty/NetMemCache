@@ -87,11 +87,11 @@ namespace BinaryRage
 			CacheEntry? cacheEntry;
 			if (!cacheDictionary.TryGetValue( CacheKey( key ), out cacheEntry ))
 			{
-				var rawData = await this.storage.Read(key, this.storeName);
-				if (rawData == null)
+				cacheEntry = await this.storage.Read(key, this.storeName);
+				if (cacheEntry == null)
 					return (false, null);
 
-				cacheDictionary.TryAdd( key, cacheEntry! );
+				cacheDictionary.TryAdd( key, cacheEntry );
 			}
 
 			return (true, cacheEntry!.Value);
