@@ -25,18 +25,13 @@ namespace BinaryRage
 
 		/// <inheritdoc/>
 		public async Task Write(string key, CacheEntry cacheEntry, string store)
-		{
-			var storageEntry = new StorageEntry();
-				
+		{				
 			//create folders
 			string dirstructure = CreateDirectoriesBasedOnKeyAndFilelocation(key, store);
 
 			using (var fileStream = File.OpenWrite( CombinePathAndKey( dirstructure, key ) ))
 			{
-				storageEntry.Stream = fileStream;
-				storageEntry.ExpiryDate = cacheEntry.ExpiryDate;
-				storageEntry.Type = cacheEntry.Value?.GetType();
-				storageEntry.Value = cacheEntry.Value;
+				StorageEntry storageEntry = new StorageEntry(cacheEntry, fileStream);
 				await this.objectSerializer.SerializeAsync( storageEntry, fileStream );
 			}
 			//Write the file to it's location

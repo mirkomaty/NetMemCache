@@ -25,7 +25,7 @@ namespace BinaryRage
 			var isSerialized = headerBytes[1] != 0;
 			var ticks = BitConverter.ToInt64(headerBytes, 2);
 			string typeStr;
-			string storedString;
+			string? storedString;
 
 			Stream innerStream = isCompressed ? new GZipStream(stream, CompressionMode.Decompress) : stream;
 			using (innerStream)
@@ -37,20 +37,22 @@ namespace BinaryRage
 						throw new Exception( "Can't read type information from the stream" );
 					typeStr = ts;
 
+					if (sr.BaseStream.Position == sr.BaseStream.Length)
+						storedString = null;
+
 					storedString = await sr.ReadToEndAsync();
 				}
 			}
 
-			StorageEntry result = new StorageEntry();
-			result.IsCompressed = isCompressed;
-			result.IsSerialized = isSerialized;
-			result.ExpiryDate = ticks != 0L ? new DateTime( ticks ) : null;
-			result.Type = Type.GetType(typeStr);
+			Type? t = Type.GetType(typeStr);
 
-			if (isSerialized)
+			if (t == null)
+				throw new Exception( $"Can't deserialize data because the type '{typeStr}' can't be loaded" );
+
+			StorageEntry result = new StorageEntry( isCompressed, isSerialized, t, ticks != 0L ? new DateTime( ticks ) : null );
+
+			if (isSerialized && storedString != null)
 			{
-				if (result.Type == null)
-					throw new Exception( $"Can't deserialize data because the type '{typeStr}' can't be loaded" );
 				result.Value = JsonConvert.DeserializeObject( storedString, result.Type );
 			}
 			else
@@ -95,10 +97,10 @@ namespace BinaryRage
 
 			stream.Write( headerBytes, 0, headerBytes.Length );
 
-			var innerStream = storageEntry.IsCompressed ? new GZipStream(stream, CompressionMode.Compress) : stream;
+			var innerStream = storageEntry.IsCompressed ? new GZipStream(stream, CompressionMode.Compress, false) : stream;
 			using (innerStream)
 			{
-				using (var sw = new StreamWriter( stream, Encoding.UTF8 ))
+				using (var sw = new StreamWriter( innerStream, Encoding.UTF8 ))
 				{
 					Type t = storageEntry.Type!;
 					await sw.WriteLineAsync( t.FullName + "," +  t.Assembly.FullName );
@@ -106,12 +108,5 @@ namespace BinaryRage
 				}
 			}
 		}	
-
-		///<inheritdoc/>
-		public string SerializeKey( object rawKey )
-		{
-			return JsonConvert.SerializeObject( rawKey );
-		}
-
 	}
 }

@@ -3,7 +3,7 @@ using System;
 
 namespace BinaryRage
 {
-	internal class FolderStructure : IFolderStructure
+	public class FolderStructure : IFolderStructure
 	{
 		public IEnumerable<string> Generate( string key, string store )
 		{

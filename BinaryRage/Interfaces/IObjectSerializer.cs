@@ -21,14 +21,5 @@
 		/// <returns></returns>
 		Task<StorageEntry> DeserializeAsync( Stream stream );
 
-		/// <summary>
-		/// Serializes an object to a unique key string
-		/// </summary>
-		/// <param name="rawKey"></param>
-		/// <returns></returns>
-		/// <remarks>The result does not guarantee that any requirements for the string are met. 
-		/// If the key is to be used for names in the file system, it should be encoded accordingly.
-		/// </remarks>
-		string SerializeKey( object rawKey );
 	}
 }

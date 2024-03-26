@@ -19,9 +19,9 @@ namespace BinaryRage.UnitTests
             }
 
             [Test]
-            public async Task ShouldInsertAnObjectToStore()
+            public async Task ShouldInsertAndRetrieveASmallObject()
             {
-                var model = new Model{ Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F };
+                var model = new Model{ Title = "Test" };
                 await this.binaryCache.Set( "myModel", model );
 
                 var result = await this.binaryCache.Get<Model>( "myModel" );
@@ -30,7 +30,20 @@ namespace BinaryRage.UnitTests
                 this.binaryCache.Remove( "myModel" );
             }
 
-            [Test]
+			[Test]
+			public async Task ShouldInsertAndRetrieveABigObject()
+			{
+				var model = new Model{ Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,", Price=5.0F };
+				await this.binaryCache.Set( "myModel", model );
+
+				var result = await this.binaryCache.Get<Model>( "myModel" );
+
+				Assert.That( model.Equals( result ) );
+				this.binaryCache.Remove( "myModel" );
+			}
+
+
+			[Test]
             public async Task ShouldBeAbleToInsertAndRetrieveNull()
             {
                 Model model = null;
@@ -42,7 +55,60 @@ namespace BinaryRage.UnitTests
                 this.binaryCache.Remove( "nullModel" );
             }
 
-            [Test]
+			[Test]
+			public async Task ShouldReturnCorrectTypeIfNull()
+			{
+				await this.binaryCache.Set<Model>( "myModelTgvNull", null );
+
+				Model result = await this.binaryCache.Get<Model>( "myModelTgvNull" );
+
+				Assert.That( result == null );
+				this.binaryCache.Remove( "myModelTgvNull" );
+			}
+
+			[Test]
+			public void ShouldSupportPaths()
+			{
+                string[] segments = new string[]{"My", "Path"};
+                var bcPath = Path.Combine( segments );
+
+				var folderStructure = new FolderStructure();
+                var result = Path.Combine( folderStructure.Generate( "test", bcPath ).ToArray() );
+                Assert.That( result.StartsWith( bcPath ) );
+                var resultSplit = result.Split(Path.DirectorySeparatorChar);
+                Assert.That( resultSplit.Length == 4 );
+			}
+
+			[Test]
+			public async Task GetShouldReturnNullIfNotFound()
+			{
+				var result = await this.binaryCache.Get<Model>( "notFoundModel" );
+
+				Assert.That( result == null );
+			}
+
+			[Test]
+			public async Task TryGetValueShouldReturnFalseIfNotFound()
+			{
+				var result = await this.binaryCache.TryGetValue( "notFoundModel" );
+
+				Assert.That( !result.Found );
+			}
+
+			[Test]
+			public async Task TryGetValueShouldRetrieveObject()
+			{
+				var model = new Model{ Title = "Test" };
+				await this.binaryCache.Set<Model>( "myModelTgv", model );
+
+				var result = await this.binaryCache.TryGetValue( "myModelTgv" );
+
+                Assert.That( result.Found );
+				Assert.That( model.Equals( result.Value ) );
+				this.binaryCache.Remove( "myModelTgv" );
+			}
+
+			[Test]
             public async Task ShouldInsertAndGetKeysWithInvalidChars()
             {
                 var model = new Model{Title ="title1", ThumbUrl="http://thumb.com/title1.jpg", Description="description1", Price=5.0F};
