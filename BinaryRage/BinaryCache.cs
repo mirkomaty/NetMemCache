@@ -60,6 +60,22 @@ namespace BinaryRage
 			await this.storage.Write( key, cacheEntry, this.storeName );
 		}
 
+		public async Task Set<T>( object rawKey, T value, int milliseconds )
+		{
+			var ts = TimeSpan.FromMilliseconds(milliseconds);
+			await Set<T>( rawKey, value, ts );
+		}
+
+		public async Task Set<T>( object rawKey, T value, TimeSpan timeSpan )
+		{
+			var key = this.keyHandler.ComputeKey( rawKey );
+			CacheEntry cacheEntry = new CacheEntry ( DateTime.Now + timeSpan, value, typeof(T) );
+
+			cacheDictionary[CacheKey( key )] = cacheEntry;
+
+			await this.storage.Write( key, cacheEntry, this.storeName );
+		}
+
 		/// <summary>
 		/// Removes an object from the cache.
 		/// </summary>
@@ -79,6 +95,7 @@ namespace BinaryRage
 		public async Task<(bool Found, object? Value)> TryGetValue( object rawKey )
 		{
 			var key = this.keyHandler.ComputeKey(rawKey);
+			var now = DateTime.Now;
 
 			CacheEntry? cacheEntry;
 			if (!cacheDictionary.TryGetValue( CacheKey( key ), out cacheEntry ))
@@ -87,7 +104,14 @@ namespace BinaryRage
 				if (cacheEntry == null)
 					return (false, null);
 
-				cacheDictionary.TryAdd( key, cacheEntry );
+				if (cacheEntry.ExpiryDate <= now)
+					cacheDictionary.TryAdd( key, cacheEntry );
+			}
+
+			if (cacheEntry.ExpiryDate <= now)
+			{
+				Remove( rawKey );
+				return (false, null);
 			}
 
 			return (true, cacheEntry!.Value);

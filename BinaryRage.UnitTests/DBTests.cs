@@ -169,21 +169,36 @@ namespace BinaryRage.UnitTests
                 this.binaryCache.Remove( "myModels" );
             }
 
-            [Test]
+			[Test]
+			public async Task ShouldTakeExpiryIntoAccount()
+			{
+				var model = new Model{ Title = "Test" };
+				await this.binaryCache.Set( "myModel", model, 0 ); // Expires immediately
+
+                // 1st time we get false because of expiration
+				var result = await this.binaryCache.TryGetValue( "myModel" );
+				Assert.That( result.Found, Is.False );
+
+                // 2nd time we get false because of object deletion				
+				Assert.That( this.binaryCache.Exists( "myModel" ), Is.False );
+			}
+
+			[Test]
             [Ignore( "Too much files" )]
             public async Task ShouldBeAbleToHandleHeavyLoad()
             {
                 var dt = DateTime.Now;
                 var count = 10000;
+                var trappatoni = "Es gibt im Moment in diese Mannschaft, oh, einige Spieler vergessen ihnen Profi was sie sind. Ich lese nicht sehr viele Zeitungen, aber ich habe gehört viele Situationen. Erstens: wir haben nicht offensiv gespielt. Es gibt keine deutsche Mannschaft spielt offensiv und die Name offensiv wie Bayern. Letzte Spiel hatten wir in Platz drei Spitzen: Elber, Jancka und dann Zickler. Wir müssen nicht vergessen Zickler. Zickler ist eine Spitzen mehr, Mehmet eh mehr Basler. Ist klar diese Wörter, ist möglich verstehen, was ich hab gesagt? Danke. Offensiv, offensiv ist wie machen wir in Platz. Zweitens: ich habe erklärt mit diese zwei Spieler: nach Dortmund brauchen vielleicht Halbzeit Pause. Ich habe auch andere Mannschaften gesehen in Europa nach diese Mittwoch. Ich habe gesehen auch zwei Tage die Training. Ein Trainer ist nicht ein Idiot! Ein Trainer sei sehen was passieren in Platz. In diese Spiel es waren zwei, drei diese Spieler waren schwach wie eine Flasche leer! Haben Sie gesehen Mittwoch, welche Mannschaft hat gespielt Mittwoch? Hat gespielt Mehmet oder gespielt Basler oder hat gespielt Trapattoni? Diese Spieler beklagen mehr als sie spielen! Wissen Sie, warum die Italienmannschaften kaufen nicht diese Spieler? Weil wir haben gesehen viele Male solche Spiel!";
                 for (int i = 0; i < count; i++)
                 {
-                    var model = new Model{Title ="title" + i, ThumbUrl=$"http://thumb.com/title{i}.jpg", Description=$"description{i}", Price=(float)i};
+                    var model = new Model{Title ="title" + i, ThumbUrl=$"http://thumb.com/title{i}.jpg", Description=$"{trappatoni}{i}", Price=(float)i};
                     await this.binaryCache.Set( "myModel" + i, model );
                 }
 
                 for (int i = 0; i < count; i++)
                 {
-                    var model = new Model { Title = "title" + i, ThumbUrl = $"http://thumb.com/title{i}.jpg", Description = $"description{i}", Price = (float) i };
+                    var model = new Model { Title = "title" + i, ThumbUrl = $"http://thumb.com/title{i}.jpg", Description = $"{trappatoni}{i}", Price = (float) i };
                     var result = await this.binaryCache.Get<Model>("myModel" + i);
 
                     Assert.That( model.Equals( result ) );
@@ -204,3 +219,4 @@ namespace BinaryRage.UnitTests
 
     }
 }
+
