@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Security.AccessControl;
 using NetMemCache.Interfaces;
 
 namespace NetMemCache
