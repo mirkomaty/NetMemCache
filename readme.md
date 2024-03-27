@@ -1,7 +1,7 @@
-# .NET Object Cache (NOC)
-NOC provides a simple and fast key-value store. No database or other technology is needed to store the data. The data is stored in the file system.
+# NetMemCache
+NetMemCache provides a simple and fast key-value store. No database or other technology is needed to store the data. The data is stored in the file system.
 
-This project is based on an idea by Michael Christensen called [BinaryRage](https://github.com/mchidk/BinaryRage). Kudos to him for an incredibly clever idea. After some experimentation with the original project, I made changes step by step so that there isn't much left of the old code.
+This project is based on an project by Michael Christensen called [BinaryRage](https://github.com/mchidk/BinaryRage). Kudos to him for an incredibly clever idea. After some experimentation with the original project, I made changes step by step so that there isn't much left of the old code.
 
 ## Motivation
 With Redis there exists a very powerful project for an ObjectCache. But Redis requires a Linux distribution, which is not so easy to implement in an IT landscape with Windows. WSL even in version 2 is not suitable for long running services and [there is an issue with WSL](https://github.com/MicrosoftDocs/WSL/issues/368) not solved by Microsoft.
