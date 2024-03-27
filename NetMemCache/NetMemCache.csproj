@@ -18,6 +18,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="newtonsoft.json" Version="13.0.3" />
-    <PackageReference Include="PatchProductVersion" Version="1.0.3" />
   </ItemGroup>
+	<ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
+		<PackageReference Include="PatchProductVersion" Version="1.0.3" />
+	</ItemGroup>
 </Project>
