@@ -35,7 +35,12 @@ namespace NetMemCache
 		)
 		{
 			this.keyHandler = keyHandler ?? new KeyHandler();
-			this.storeName = this.keyHandler.NormalizeKey(storeName);
+			var arr = storeName.Split(Path.DirectorySeparatorChar);
+			for (int i = 0; i < arr.Length; i++)
+			{
+				arr[i] = this.keyHandler.NormalizeKey( arr[i] );
+			}
+			this.storeName = Path.Combine( arr );
 			this.objectSerializer = objectSerializer ?? new ObjectSerializer();
 			this.folderStructure = folderStructure ?? new FolderStructure();
 			this.storage = storage ?? new Storage(this.objectSerializer, this.folderStructure);
