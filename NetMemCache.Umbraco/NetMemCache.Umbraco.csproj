@@ -17,7 +17,9 @@
 		<FileVersion>1.0.0</FileVersion>
 	</PropertyGroup>
 	<ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
-		<PackageReference Include="patchproductversion" Version="1.0.3" />
+		<PackageReference Include="patchproductversion" Version="1.0.3">
+			<ExcludeAssets>all</ExcludeAssets>
+		</PackageReference>
 		<PackageReference Include="Umbraco.Cms.Web.BackOffice" Version="10.8.3" />
 		<PackageReference Include="Umbraco.Cms.Web.Website" Version="10.8.3" />
 	</ItemGroup>
