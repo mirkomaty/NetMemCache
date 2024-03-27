@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NetMemCache.UnitTests
 {
-    public class DBTests
+    public class CacheTests
     {
         [TestFixture]
         public class InsertTests
@@ -77,6 +77,24 @@ namespace NetMemCache.UnitTests
                 Assert.That( result.StartsWith( bcPath ) );
                 var resultSplit = result.Split(Path.DirectorySeparatorChar);
                 Assert.That( resultSplit.Length == 4 );
+			}
+
+			[Test]
+			public async Task ShouldInsertAndRetrieveWithPath()
+			{
+				string[] segments = new string[]{"My", "Path"};
+				var bcPath = Path.Combine( segments );
+                var mc = new MemCache( bcPath );
+				var model = new Model{ Title = "Test" };
+
+				await mc.Set( "myModel", model );
+
+				var result = await mc.TryGetValue( "myModel" );
+
+                Assert.That( result.Found, Is.True );
+				Assert.That( model.Equals( result.Value ) );
+				mc.Remove( "myModel" );
+                Directory.Delete( bcPath, true );
 			}
 
 			[Test]
