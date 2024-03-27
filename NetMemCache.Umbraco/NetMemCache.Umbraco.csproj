@@ -6,15 +6,15 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Version>3.0.24</Version>
+		<Version>1.0.0</Version>
 		<Authors>FORMFAKTEN GmbH</Authors>
 		<Copyright>Copyright (c) FORMFAKTEN GmbH</Copyright>
 		<IncludeSymbols>True</IncludeSymbols>
 		<RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
 		<RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>
 		<EnableNETAnalyzers>False</EnableNETAnalyzers>
-		<AssemblyVersion>3.0.24</AssemblyVersion>
-		<FileVersion>3.0.24</FileVersion>
+		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<FileVersion>1.0.0</FileVersion>
 	</PropertyGroup>
 	<ItemGroup Condition="'$(TargetFramework)'=='net6.0'">
 		<PackageReference Include="patchproductversion" Version="1.0.3" />
