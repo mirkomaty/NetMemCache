@@ -40,7 +40,7 @@ namespace NetMemCache
 			{
 				arr[i] = this.keyHandler.NormalizeKey( arr[i] );
 			}
-			this.storeName = Path.Combine( arr );
+			this.storeName = String.Join( Path.DirectorySeparatorChar, arr )
 			this.objectSerializer = objectSerializer ?? new ObjectSerializer();
 			this.folderStructure = folderStructure ?? new FolderStructure();
 			this.storage = storage ?? new Storage(this.objectSerializer, this.folderStructure);
