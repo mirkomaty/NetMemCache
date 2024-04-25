@@ -10,14 +10,15 @@ namespace NetMemCache
 {
     internal class KeyHandler : IKeyHandler
 	{
-		static readonly char[] invalid = Path.GetInvalidPathChars();
+		static readonly char[] invalidPath = Path.GetInvalidPathChars();
+		static readonly char[] invalidFile = Path.GetInvalidFileNameChars();
 
-		public string NormalizeKey( string key )
+		public string NormalizeKey( string key, bool isPath )
 		{
 			StringBuilder sb = new StringBuilder();
 			foreach (var c in key)
 			{
-				if (invalid.Contains( c ))
+				if (( isPath ? invalidPath : invalidFile ).Contains( c ))
 				{
 					var bytes = Encoding.UTF8.GetBytes( new[] { c } );
 					foreach (byte b in bytes)
@@ -40,9 +41,9 @@ namespace NetMemCache
 				throw new ArgumentNullException( nameof( rawKey ) );
 
 			if (rawKey is string)
-				return NormalizeKey( (string) rawKey );
+				return NormalizeKey( (string) rawKey, false );
 
-			return NormalizeKey( SerializeKey( rawKey ) );
+			return NormalizeKey( SerializeKey( rawKey ), false );
 		}
 
 		/// <summary>

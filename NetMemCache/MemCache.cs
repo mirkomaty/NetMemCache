@@ -38,7 +38,7 @@ namespace NetMemCache
 			var arr = storeName.Split(Path.DirectorySeparatorChar);
 			for (int i = 0; i < arr.Length; i++)
 			{
-				arr[i] = this.keyHandler.NormalizeKey( arr[i] );
+				arr[i] = this.keyHandler.NormalizeKey( arr[i], true );
 			}
 			this.storeName = String.Join( Path.DirectorySeparatorChar, arr );
 			this.objectSerializer = objectSerializer ?? new ObjectSerializer();
