@@ -10,7 +10,7 @@ namespace NetMemCache
 {
     internal class KeyHandler : IKeyHandler
 	{
-		static readonly char[] invalid = Path.GetInvalidFileNameChars();
+		static readonly char[] invalid = Path.GetInvalidPathChars();
 
 		public string NormalizeKey( string key )
 		{
