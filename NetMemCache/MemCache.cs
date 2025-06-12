@@ -19,6 +19,11 @@ namespace NetMemCache
 		public string StoreName => this.storeName;
 
 		/// <summary>
+		/// This is for test purposes only. Don't set this value to true.
+		/// </summary>
+		public bool DisableDictionary { get; set; } = false;
+
+		/// <summary>
 		/// Constructs a Cache object.
 		/// </summary>
 		/// <param name="storeName"></param>
@@ -60,7 +65,8 @@ namespace NetMemCache
 			var key = this.keyHandler.ComputeKey( rawKey );
 			CacheEntry cacheEntry = new CacheEntry ( null, value, typeof(T) );
 
-			cacheDictionary[CacheKey( key )] = cacheEntry;
+			if (!DisableDictionary)
+				cacheDictionary[CacheKey( key )] = cacheEntry;
 
 			await this.storage.Write( key, cacheEntry, this.storeName );
 		}
@@ -76,7 +82,8 @@ namespace NetMemCache
 			var key = this.keyHandler.ComputeKey( rawKey );
 			CacheEntry cacheEntry = new CacheEntry ( DateTime.Now + timeSpan, value, typeof(T) );
 
-			cacheDictionary[CacheKey( key )] = cacheEntry;
+			if (!DisableDictionary)
+				cacheDictionary[CacheKey( key )] = cacheEntry;
 
 			await this.storage.Write( key, cacheEntry, this.storeName );
 		}

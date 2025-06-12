@@ -34,10 +34,10 @@ namespace NetMemCache
 						throw new Exception( "Can't read type information from the stream" );
 					typeStr = ts;
 
-					if (sr.BaseStream.Position == sr.BaseStream.Length)
+					if ( sr.EndOfStream )
 						storedString = null;
-
-					storedString = await sr.ReadToEndAsync();
+					else
+						storedString = await sr.ReadToEndAsync();
 				}
 			}
 
