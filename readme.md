@@ -1,7 +1,7 @@
 # NetMemCache
 NetMemCache provides a simple and fast key-value store. No database or other technology is needed to store the data. The data is stored in the file system.
 
-This project is based on an project by Michael Christensen called [BinaryRage](https://github.com/mchidk/BinaryRage). Kudos to him for an incredibly clever idea. After some experimentation with the original project, I made changes step by step so that there isn't much left of the old code.
+This project is based on a project by Michael Christensen called [BinaryRage](https://github.com/mchidk/BinaryRage). Kudos to him for an incredibly clever idea. After some experimentation with the original project, I made changes step by step so that there isn't much left of the old code.
 
 ## Motivation
 With Redis there exists a very powerful project for an ObjectCache. But Redis requires a Linux distribution, which is not so easy to implement in an IT landscape with Windows. WSL even in version 2 is not suitable for long running services and [there is an issue with WSL](https://github.com/MicrosoftDocs/WSL/issues/368) not solved by Microsoft.
@@ -9,7 +9,7 @@ With Redis there exists a very powerful project for an ObjectCache. But Redis re
 Moreover, we think there should be a simple, fast .NET object cache available as open source.
 
 ## Functionality and Difference to BinaryRage
-+ Each class in BinaryRage is static. We reworked the classes to be instantiable to support DI.
++ We reworked the classes to be instantiable to support DI, unlike BinaryRage, where all methods are static.
 + We implemented a clean asynchronous architecture using async/await.
 + The old code calculated a wait time after save operations, which slowed down the system unnecessarily. By using async/await, the store was able to be significantly accelerated.
 + We made all core components replacable with DI, e.g. IStorage, IFolderStructure, IObjectSerializer
@@ -35,29 +35,32 @@ Simple class - no serializable attribute needed.
 		public float Price { get; set; }
 	}
 
+	var myProduct = new Product(){...};
+
 Insert-syntax (same for create and update)
 
-	var objectCache = new ObjectCache("productCache");
-	objectCache.Insert("mykey", @"C:\testpath");
+	var memCache = new MemCache("productCache");
+	memCache.Set("mykey", myProduct);
 	
 	// removal of an object after a certain time span
-	objectCache.Insert("mykey", @"C:\testpath", timeSpan);
+	memCache.Set("mykey", myProduct, timeSpan);
 
 ... or with a list
 
-	objectCache.Insert("mykey", myProduct);
+	var myProducts = new List<Product>();
+	memCache.Insert("mykey", myProducts);
 
 Get the saved data
 
-	var myProduct = objectCache.Get<Product>("mykey");
+	var myProduct = memCache.Get<Product>("mykey");
 	
 ... or with a list
 
-	var listOfProducts = objectCache.Get<List<Product>>("mykey");
+	var listOfProducts = memCache.Get<List<Product>>("mykey");
 
 Query objects directly with LINQ
 
-	var bestsellers = objectCache.Get<List<Category>>("bestsellers").Where(p => !string.IsNullOrEmpty(p.Name));
+	var bestsellers = memCache.Get<List<Category>>("bestsellers").Where(p => !string.IsNullOrEmpty(p.Name));
 
 Note: GetJSON and WaitForCompletion have been removed. Key API has been removed.
 
