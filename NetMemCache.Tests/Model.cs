@@ -34,11 +34,14 @@ namespace NetMemCache.UnitTests
         {
             unchecked
             {
+                // Note: String.GetHashCode gets a different HashCode for each instance of an application process.
+                // This is not suitable for serialization or persistence purposes.
+                // We use GetConstantHashCode to avoid problems with different HashCodes.
                 var hash = (int)15257167;
 
-                hash = (hash * 10786583) ^ (!string.IsNullOrEmpty(this.Title) ? this.Title.GetHashCode() : 0);
-                hash = (hash * 10786583) ^ (!string.IsNullOrEmpty(this.Description) ? this.Description.GetHashCode() : 0);
-                hash = (hash * 10786583) ^ (!string.IsNullOrEmpty(this.ThumbUrl) ? this.ThumbUrl.GetHashCode() : 0);
+                hash = (hash * 10786583) ^ (!string.IsNullOrEmpty(this.Title) ? this.Title.GetConstantHashCode() : 0);
+                hash = (hash * 10786583) ^ (!string.IsNullOrEmpty(this.Description) ? this.Description.GetConstantHashCode() : 0);
+                hash = (hash * 10786583) ^ (!string.IsNullOrEmpty(this.ThumbUrl) ? this.ThumbUrl.GetConstantHashCode() : 0);
                 hash = (hash * 10786583) ^ this.Price.GetHashCode();
 
                 return hash;

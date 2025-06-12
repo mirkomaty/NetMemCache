@@ -68,16 +68,9 @@ namespace NetMemCache
 				string pathSoFar = "";
 				foreach (var folder in GetFolders( key, store ))
 				{
-					try
-					{
-						pathSoFar = Path.Combine( pathSoFar, folder );
-						if (!Directory.Exists( pathSoFar ))
-							Directory.CreateDirectory( pathSoFar );
-					}
-					catch (Exception)
-					{
-
-					}
+					pathSoFar = Path.Combine( pathSoFar, folder );
+					if (!Directory.Exists( pathSoFar ))
+						Directory.CreateDirectory( pathSoFar );
 				}
 				return pathSoFar;
 			}
