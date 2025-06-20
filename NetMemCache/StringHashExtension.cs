@@ -17,6 +17,15 @@ namespace NetMemCache
         /// <returns></returns>
         public static int GetConstantHashCode( this string s )
         {
+            if (s == null)
+                throw new ArgumentNullException( "s" );
+
+            if (s == String.Empty)
+                s = " ";
+            // Make sure that the hash code is random throughout
+            // it's whole length, if s is very short
+            while (s.Length < 8)
+                s += s;
             Byte[] barr = Encoding.UTF8.GetBytes(s);
             int hash = -1;
             int l = barr.Length;
