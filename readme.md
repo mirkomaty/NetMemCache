@@ -18,8 +18,8 @@ Moreover, we think there should be a simple, fast .NET object cache available as
 + We implemented an optional expiration date so that cache entries can be removed after a certain period of time.
 + We changed the algorithm that calculates the directory structure so that all objects reside in a maximum of 65536 directories. This behavior can be changed.
 + The original algorithm uses the BinaryFormatter. We changed this in favour of Newtonsoft.Json. The algorithm can now be injected via DependencyInjection.
-+ The old algorithm serialized all input objects. We don't serialize strings. These will be compressed directly if they are long enough. It is also saved whether deserialization is necessary.
-+ The original algorithm compresses all objects. We only compress objects of a certain size and save whether compression has taken place.
++ The old algorithm serialized all input objects. We don't serialize strings. If they are long enough, they will be compressed. If an object was serialized an deserialization is necessary during read, this will be stored in the header data.
++ The original algorithm compresses all objects. We only compress objects of a certain size and store the information whether compression has taken place.
 + We added a WebAPI project to use the ObjectCache as a service.
 + Future feature: Saving objects from a stream, e.g. after upload of data to a web application
 
