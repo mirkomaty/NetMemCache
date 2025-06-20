@@ -84,7 +84,7 @@ Call this method regularly.
 
 # FAQ
 ## Is it fast?
-On my development machine, which is not the newest technology I measured about 0.36 ms for each write / read pair. Getting the values costs ~0.0025 ms of the total time. 
+On my development machine, which is not the newest technology, I measured about 0.36 ms for each write / read pair. Getting the values costs ~0.0025 ms of the total time. 
 
 If we have to read all values from disc (restarting the test application with known keys), reading costs about 0,13 ms per entry.
 
