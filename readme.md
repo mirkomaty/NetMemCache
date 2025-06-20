@@ -68,11 +68,19 @@ else
     return NotFound();
 ```
 
-Query objects directly with LINQ
+Remove Entries:
 
-	var bestsellers = memCache.Get<List<Category>>("bestsellers").Where(p => !string.IsNullOrEmpty(p.Name));
+```
+memcache.Remove(key);
+```
 
-Note: GetJSON and WaitForCompletion have been removed. Key API has been removed.
+Removal for housekeeping of expired objects:
+
+```
+memcache.RemoveExpired();
+```
+
+Call this method regularly.
 
 # FAQ
 ## Is it fast?
