@@ -84,9 +84,13 @@ Call this method regularly.
 
 # FAQ
 ## Is it fast?
-On my development machine, which is not the newest technology I measured about 0.36 ms for each read / write pair. Getting the values costs ~0.0025 ms of the total time. 
+On my development machine, which is not the newest technology I measured about 0.36 ms for each write / read pair. Getting the values costs ~0.0025 ms of the total time. 
 
 If we have to read all values from disc (restarting the test application with known keys), reading costs about 0,13 ms per entry.
+
+Note that these costs apply to small objects (e.g. guids) that do not need to be compressed. Compressing larger objects takes additional time.
+
+The total costs of a write / read cycle with compressed data are 0.59 ms. Reading these values from the file system costs 0,13 ms per entry.
 
 Deleting all objects with Remove() costs about 0.17 ms per entry. Note, that deleting doesn't delete the folders. That would be very inefficient.
 
