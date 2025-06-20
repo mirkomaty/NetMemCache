@@ -58,6 +58,16 @@ Get the saved data
 
 	var listOfProducts = memCache.Get<List<Product>>("mykey");
 
+ Check, if data is available:
+
+```
+var result = await memCache.TryGetValue( key );
+if (result.Found)
+    return Content( (string) result.Value );
+else
+    return NotFound();
+```
+
 Query objects directly with LINQ
 
 	var bestsellers = memCache.Get<List<Category>>("bestsellers").Where(p => !string.IsNullOrEmpty(p.Name));
