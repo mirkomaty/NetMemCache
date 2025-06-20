@@ -65,8 +65,7 @@ Query objects directly with LINQ
 Note: GetJSON and WaitForCompletion have been removed. Key API has been removed.
 
 # FAQ
-## Is it really fast?
+## Is it fast?
 On my development machine, which is not the newest technology I measured about 0.6 ms for each read / write pair.
 
-All writes are performed asynchronously. Reads are instantly available (also if writes are not completed) because of the in-memory-cache.
-
+All writes are performed asynchronously. Because of the in-memory-cache reads are available immediately, even if writing is not yet complete.
